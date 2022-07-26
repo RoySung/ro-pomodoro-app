@@ -15,15 +15,15 @@ export class MainScene extends Phaser.Scene {
     const y = this.game.canvas.height / 2
     this.add.image(x, y, 'logo')
 
-    this.add.text(0, 0, 'Hello World!')
+    // this.add.text(0, 0, 'Hello World!')
   }
 }
 
 const config = {
   type: Phaser.AUTO,
-  parent: 'flappy-bird-game',
-  width: 800,
-  height: 600,
+  parent: 'trip-pomodoro-canvas-wrap',
+  width: 400,
+  height: 800,
 }
 
 export const createGame = () => {

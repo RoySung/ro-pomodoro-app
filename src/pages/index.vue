@@ -1,10 +1,27 @@
 <script setup lang="ts">
+import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
+import FocusStage from '~/components/gameUIStages/FocusStage.vue'
+import RestStage from '~/components/gameUIStages/RestStage.vue'
 import { createGame, MainScene } from '~/game'
+import { useCountdownModel } from '~/models/countdownModel'
 
 const game = ref()
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 const watch = async() => {
 }
+
+const {
+  appstate,
+
+} = useCountdownModel()
+
+const stageComponent = computed(() => {
+  if (appstate.value.isReadyState) return ReadyStage
+  else if (appstate.value.isFocusState) return FocusStage
+  else if (appstate.value.isRestState) return RestStage
+
+  return ReadyStage
+})
 
 onMounted(() => {
   game.value = createGame()
@@ -13,7 +30,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="flappy-bird-game" class="flex justify-center self-center">
+  <div class="trip-pomodoro-content flex justify-center self-center relative w-[fit-content] mx-auto">
+    <div id="trip-pomodoro-canvas-wrap">
+    </div>
+    <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
+      <component :is="stageComponent"></component>
+    </div>
   </div>
 </template>
 
