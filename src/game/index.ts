@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { random } from 'lodash-es'
 import { Events, eventsCenter } from '~/game/eventsCenter'
 
 import poringIdleSprite from '/game/poring/poring-idle-sprite.png'
@@ -38,6 +39,7 @@ export class MainScene extends Phaser.Scene {
   mainRole?: Phaser.GameObjects.Sprite
   mainRoleMap: Map<PoringRole, Phaser.GameObjects.Sprite>
   itemMap: Map<Items, Phaser.GameObjects.Image>
+  isRest = false
   mainRoleStartPosition = {
     x: 0,
     y: 0,
@@ -92,6 +94,14 @@ export class MainScene extends Phaser.Scene {
 
     eventsCenter.on(Events.Eat, () => {
       this.doEat()
+    })
+
+    eventsCenter.on(Events.StartRest, () => {
+      this.isRest = true
+    })
+
+    eventsCenter.on(Events.StopRest, () => {
+      this.isRest = false
     })
   }
 
@@ -285,13 +295,30 @@ export class MainScene extends Phaser.Scene {
     })
   }
 
+  doRest() {
+    const actions = [
+      () => this.doDrink(),
+      () => this.doEat(),
+    ]
+    const index = random(actions.length - 1)
+    const action = actions[index]
+
+    action()
+  }
+
   get isWalking() {
     const walkRole = this.mainRoleMap.get(PoringRole.Walk)
     return this.mainRole === walkRole
   }
 
+  get isIdling() {
+    const idelRole = this.mainRoleMap.get(PoringRole.Idle)
+    return this.mainRole === idelRole
+  }
+
   update() {
     if (this.bg && this.isWalking) this.bg.tilePositionX += 3
+    if (this.isIdling && this.isRest) this.doRest()
   }
 }
 
