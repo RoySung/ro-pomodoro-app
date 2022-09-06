@@ -1,33 +1,48 @@
 import Phaser from 'phaser'
 import { Events, eventsCenter } from '~/game/eventsCenter'
 
-import poringIdleSprite from '/sprites/poring/poring-idle-sprite.png'
-import poringWalkSprite from '/sprites/poring/poring-walk-sprite.png'
-import bg0Img from '/bg-0.png'
+import poringIdleSprite from '/game/poring/poring-idle-sprite.png'
+import poringWalkSprite from '/game/poring/poring-walk-sprite.png'
+import poringDrinkSprite from '/game/poring/poring-drink-sprite.png'
+import appleJuiceItemImg from '/game/items/apple-juice-icon.png'
+import bg0Img from '/game/bg-0.png'
 
 enum PoringRole {
   Idle = 'poring-idle',
-  Walk = 'poring-walk'
+  Walk = 'poring-walk',
+  Drink = 'poring-drink'
+}
+
+enum Items {
+  AppleJuice = 'apple-juice-icon'
 }
 
 export class MainScene extends Phaser.Scene {
   bg?: Phaser.GameObjects.TileSprite
   mainRole?: Phaser.GameObjects.Sprite
   mainRoleMap: Map<PoringRole, Phaser.GameObjects.Sprite>
+  itemMap: Map<Items, Phaser.GameObjects.Image>
   mainRoleStartPosition = {
     x: 0,
     y: 0,
+  }
+
+  juicePosAdjust = {
+    x: -40,
+    y: 55,
   }
 
   constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
     super(config)
 
     this.mainRoleMap = new Map()
+    this.itemMap = new Map()
   }
 
   preload() {
     this.preloadBackground()
     this.preloadMainCharacter()
+    this.preloadItems()
   }
 
   preloadBackground() {
@@ -42,6 +57,11 @@ export class MainScene extends Phaser.Scene {
 
     this.load.spritesheet(PoringRole.Idle, poringIdleSprite, { frameWidth: 41, frameHeight: 39 })
     this.load.spritesheet(PoringRole.Walk, poringWalkSprite, { frameWidth: 41, frameHeight: 44 })
+    this.load.spritesheet(PoringRole.Drink, poringDrinkSprite, { frameWidth: 74, frameHeight: 76 })
+  }
+
+  preloadItems() {
+    this.load.image(Items.AppleJuice, appleJuiceItemImg)
   }
 
   registerEvents() {
@@ -52,11 +72,17 @@ export class MainScene extends Phaser.Scene {
     eventsCenter.on(Events.Walk, () => {
       this.doWalk()
     })
+
+    eventsCenter.on(Events.Drink, () => {
+      this.doDrink()
+    })
   }
 
   create() {
     this.createBackground()
     this.createMainCharacter()
+    this.createItems()
+
     this.playMainRole(PoringRole.Idle)
     this.registerEvents()
   }
@@ -74,6 +100,7 @@ export class MainScene extends Phaser.Scene {
     const roleCreators = [
       () => this.createIdleMainRole(),
       () => this.createWalkMainRole(),
+      () => this.createDrinkMainRole(),
     ]
     roleCreators.forEach(creator => creator())
   }
@@ -118,6 +145,44 @@ export class MainScene extends Phaser.Scene {
     return poring
   }
 
+  createDrinkMainRole() {
+    const role = this.mainRoleMap.get(PoringRole.Drink)
+    if (role) return role
+
+    const { x, y } = this.mainRoleStartPosition
+    this.anims.create({
+      key: PoringRole.Drink,
+      frames: this.anims.generateFrameNumbers(PoringRole.Drink, { start: 0, end: 12 }),
+      frameRate: 16,
+      repeat: 2,
+    })
+    const poring = this.add.sprite(x, y, PoringRole.Drink)
+    // poring.setFlipX(true)
+    poring.setScale(2)
+    poring.setVisible(false)
+    this.mainRoleMap.set(PoringRole.Drink, poring)
+
+    return poring
+  }
+
+  createItems() {
+    const { x, y } = this.mainRoleStartPosition
+    const createAppleJuice = () => {
+      const appleJuice = this.add.image(x, y, Items.AppleJuice)
+      appleJuice.setScale(2)
+      appleJuice.setAngle(15)
+      appleJuice.visible = false
+
+      this.itemMap.set(Items.AppleJuice, appleJuice)
+      return appleJuice
+    }
+    const itemCreators = [
+      () => createAppleJuice(),
+    ]
+
+    itemCreators.forEach(creator => creator())
+  }
+
   playMainRole(role: PoringRole) {
     const targetRole = this.mainRoleMap.get(role)
     if (!targetRole) return
@@ -130,7 +195,9 @@ export class MainScene extends Phaser.Scene {
 
     targetRole.setVisible(true)
     this.mainRole = targetRole
-    this.mainRole.play(role)
+    const player = this.mainRole.play(role)
+
+    return player
   }
 
   doWalk() {
@@ -139,6 +206,19 @@ export class MainScene extends Phaser.Scene {
 
   doIdle() {
     this.playMainRole(PoringRole.Idle)
+  }
+
+  doDrink() {
+    const appleJuice = this.itemMap.get(Items.AppleJuice)
+    if (!this.mainRole || !appleJuice) return
+
+    const { x, y } = this.mainRole
+    appleJuice.setPosition(x + this.juicePosAdjust.x, y + this.juicePosAdjust.y)
+    appleJuice.setVisible(true)
+    this.playMainRole(PoringRole.Drink)?.once('animationcomplete', () => {
+      appleJuice?.setVisible(false)
+      this.playMainRole(PoringRole.Idle)
+    })
   }
 
   get isWalking() {

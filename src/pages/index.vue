@@ -36,6 +36,10 @@ const doIdle = () => {
   eventsCenter.emit(Events.Idle)
 }
 
+const doAction = () => {
+  eventsCenter.emit(Events.Drink)
+}
+
 </script>
 
 <template>
@@ -43,6 +47,9 @@ const doIdle = () => {
     <div id="trip-pomodoro-canvas-wrap">
     </div>
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
+      <button @click="doAction">
+        DoAction
+      </button><br>
       <button @click="doIdle">
         DoIdle
       </button><br>
