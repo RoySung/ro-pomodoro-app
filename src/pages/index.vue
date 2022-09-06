@@ -37,7 +37,7 @@ const doIdle = () => {
 }
 
 const doAction = () => {
-  eventsCenter.emit(Events.Drink)
+  eventsCenter.emit(Events.Eat)
 }
 
 </script>
