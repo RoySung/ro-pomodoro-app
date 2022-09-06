@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Ref } from 'vue'
+import { Events, eventsCenter } from '~/game/eventsCenter'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
@@ -28,8 +29,11 @@ onMounted(() => {
   game.value = createGame()
 })
 
-const doWalking = () => {
-
+const doWalk = () => {
+  eventsCenter.emit(Events.Walk)
+}
+const doIdle = () => {
+  eventsCenter.emit(Events.Idle)
 }
 
 </script>
@@ -39,7 +43,10 @@ const doWalking = () => {
     <div id="trip-pomodoro-canvas-wrap">
     </div>
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
-      <button @click="doWalking">
+      <button @click="doIdle">
+        DoIdle
+      </button><br>
+      <button @click="doWalk">
         DoWalk
       </button>
       <component :is="stageComponent"></component>

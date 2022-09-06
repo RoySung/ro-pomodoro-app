@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import { Events, eventsCenter } from '~/game/eventsCenter'
+
 import poringIdleSprite from '/sprites/poring/poring-idle-sprite.png'
 import poringWalkSprite from '/sprites/poring/poring-walk-sprite.png'
 import bg0Img from '/bg-0.png'
@@ -42,14 +44,21 @@ export class MainScene extends Phaser.Scene {
     this.load.spritesheet(PoringRole.Walk, poringWalkSprite, { frameWidth: 41, frameHeight: 44 })
   }
 
+  registerEvents() {
+    eventsCenter.on(Events.Idle, () => {
+      this.doIdle()
+    })
+
+    eventsCenter.on(Events.Walk, () => {
+      this.doWalk()
+    })
+  }
+
   create() {
     this.createBackground()
     this.createMainCharacter()
     this.playMainRole(PoringRole.Idle)
-
-    setTimeout(() => {
-      this.doWalking()
-    }, 2000)
+    this.registerEvents()
   }
 
   createBackground() {
@@ -124,8 +133,12 @@ export class MainScene extends Phaser.Scene {
     this.mainRole.play(role)
   }
 
-  doWalking() {
+  doWalk() {
     this.playMainRole(PoringRole.Walk)
+  }
+
+  doIdle() {
+    this.playMainRole(PoringRole.Idle)
   }
 
   get isWalking() {
