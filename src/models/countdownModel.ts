@@ -1,4 +1,5 @@
 import { padStart, cloneDeep } from 'lodash-es'
+import mitt from 'mitt'
 const sec2ms = (s: number) => s * 1000
 const minu2ms = (m: number) => sec2ms(m * 60)
 const ms2sec = (ms: number) => Math.floor(ms / 1000)
@@ -20,6 +21,15 @@ interface Record {
     endTime: string
   }
 }
+
+export enum Events {
+  StartFocus = 'start-focus',
+  FinishFocus = 'finish-focus',
+  StartRest = 'start-rest',
+  FinishRest = 'finish-rest'
+}
+
+const emitter = mitt()
 
 const focusState: AppState = {
   name: 'Focus State',
@@ -101,6 +111,7 @@ const startFocus = () => {
   setCurrentRecord(record)
   goNextState(focusState)
   resume()
+  emitter.emit(Events.StartFocus)
 }
 const stopFocus = () => {
   pause()
@@ -115,6 +126,7 @@ const startRest = () => {
   setCurrentRecord(record)
   goNextState(restState)
   resume()
+  emitter.emit(Events.StartRest)
 }
 
 const finishRest = () => {
@@ -127,6 +139,7 @@ const finishRest = () => {
   records.value.push(record)
 
   setCurrentRecord(cloneDeep(defaultRecord))
+  emitter.emit(Events.FinishRest)
 }
 
 const stopRest = () => {
@@ -156,5 +169,6 @@ export const useCountdownModel = () => {
     startRest,
     stopRest,
     finishRest,
+    emitter,
   }
 }

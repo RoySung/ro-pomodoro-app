@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Ref } from 'vue'
-import { Events, eventsCenter } from '~/game/eventsCenter'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
 import { createGame, MainScene } from '~/game'
-import { useCountdownModel } from '~/models/countdownModel'
+import { eventsCenter as gameEventCenter, Events as GameEvent } from '~/game/eventsCenter'
+import { useCountdownModel, Events } from '~/models/countdownModel'
 
 const game = ref() as Ref<ReturnType<typeof createGame>>
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
@@ -14,8 +14,20 @@ const watch = async() => {
 
 const {
   appstate,
-
+  emitter,
 } = useCountdownModel()
+
+emitter.on(Events.StartFocus, () => {
+  gameEventCenter.emit(GameEvent.Walk)
+})
+
+emitter.on(Events.StartRest, () => {
+  gameEventCenter.emit(GameEvent.StartRest)
+})
+
+emitter.on(Events.FinishRest, () => {
+  gameEventCenter.emit(GameEvent.FinishRest)
+})
 
 const stageComponent = computed(() => {
   if (appstate.value.isReadyState) return ReadyStage
@@ -29,17 +41,6 @@ onMounted(() => {
   game.value = createGame()
 })
 
-const doWalk = () => {
-  eventsCenter.emit(Events.Walk)
-}
-const doIdle = () => {
-  eventsCenter.emit(Events.Idle)
-}
-
-const doAction = () => {
-  eventsCenter.emit(Events.FinishRest)
-}
-
 </script>
 
 <template>
@@ -47,15 +48,6 @@ const doAction = () => {
     <div id="trip-pomodoro-canvas-wrap">
     </div>
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
-      <button @click="doAction">
-        DoAction
-      </button><br>
-      <button @click="doIdle">
-        DoIdle
-      </button><br>
-      <button @click="doWalk">
-        DoWalk
-      </button>
       <component :is="stageComponent"></component>
     </div>
   </div>

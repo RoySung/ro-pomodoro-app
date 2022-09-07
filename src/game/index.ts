@@ -101,7 +101,7 @@ export class MainScene extends Phaser.Scene {
 
     eventsCenter.on(Events.StartRest, () => {
       this.isRest = true
-      this.playMVP()
+      this.doIdle()
     })
 
     eventsCenter.on(Events.FinishRest, () => {

@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import mitt from 'mitt'
 
 export enum Events {
   Idle = 'idle',
@@ -9,4 +9,4 @@ export enum Events {
   FinishRest = 'finish-rest',
 }
 
-export const eventsCenter = new Phaser.Events.EventEmitter()
+export const eventsCenter = mitt()
