@@ -6,7 +6,7 @@ export enum Events {
   Drink = 'drink',
   Eat = 'eat',
   StartRest = 'start-rest',
-  StopRest = 'stop-rest'
+  FinishRest = 'finish-rest',
 }
 
 export const eventsCenter = new Phaser.Events.EventEmitter()

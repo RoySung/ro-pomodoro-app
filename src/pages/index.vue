@@ -37,7 +37,7 @@ const doIdle = () => {
 }
 
 const doAction = () => {
-  eventsCenter.emit(Events.StartRest)
+  eventsCenter.emit(Events.FinishRest)
 }
 
 </script>

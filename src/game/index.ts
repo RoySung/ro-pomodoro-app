@@ -7,8 +7,9 @@ import poringWalkSprite from '/game/poring/poring-walk-sprite.png'
 import poringDrinkSprite from '/game/poring/poring-drink-sprite.png'
 import poringEatSprite from '/game/poring/poring-eat-sprite.png'
 
-import appleJuiceItemImg from '/game/items/apple-juice-icon.png'
+import appleJuiceItemImg from '/game/items/apple-juice.png'
 import foodItemImg from '/game/items/food.gif'
+import MVPSprite from '/game/items/mvp-sprite.png'
 import bg0Img from '/game/bg-0.png'
 
 enum PoringRole {
@@ -20,7 +21,8 @@ enum PoringRole {
 
 enum Items {
   AppleJuice = 'apple-juice-icon',
-  Food = 'food'
+  Food = 'food',
+  MVP = 'mvp'
 }
 
 const posAdjustConfig = {
@@ -38,7 +40,7 @@ export class MainScene extends Phaser.Scene {
   bg?: Phaser.GameObjects.TileSprite
   mainRole?: Phaser.GameObjects.Sprite
   mainRoleMap: Map<PoringRole, Phaser.GameObjects.Sprite>
-  itemMap: Map<Items, Phaser.GameObjects.Image>
+  itemMap: Map<Items, Phaser.GameObjects.Image | Phaser.GameObjects.Sprite>
   isRest = false
   mainRoleStartPosition = {
     x: 0,
@@ -77,6 +79,7 @@ export class MainScene extends Phaser.Scene {
   preloadItems() {
     this.load.image(Items.AppleJuice, appleJuiceItemImg)
     this.load.image(Items.Food, foodItemImg)
+    this.load.spritesheet(Items.MVP, MVPSprite, { frameWidth: 121, frameHeight: 268 })
   }
 
   registerEvents() {
@@ -98,9 +101,11 @@ export class MainScene extends Phaser.Scene {
 
     eventsCenter.on(Events.StartRest, () => {
       this.isRest = true
+      this.playMVP()
     })
 
-    eventsCenter.on(Events.StopRest, () => {
+    eventsCenter.on(Events.FinishRest, () => {
+      this.playMVP()
       this.isRest = false
     })
   }
@@ -234,9 +239,25 @@ export class MainScene extends Phaser.Scene {
       return food
     }
 
+    const createMVP = () => {
+      this.anims.create({
+        key: Items.MVP,
+        frames: this.anims.generateFrameNumbers(Items.MVP, { start: 0, end: 50 }),
+        frameRate: 20,
+        repeat: 0,
+      })
+      const mvp = this.add.sprite(x, y - 210, Items.MVP)
+      mvp.setScale(2)
+      mvp.setVisible(false)
+
+      this.itemMap.set(Items.MVP, mvp)
+      return mvp
+    }
+
     const itemCreators = [
       () => createAppleJuice(),
       () => createFood(),
+      () => createMVP(),
     ]
 
     itemCreators.forEach(creator => creator())
@@ -257,6 +278,16 @@ export class MainScene extends Phaser.Scene {
     const player = this.mainRole.play(role, true)
 
     return player
+  }
+
+  playMVP() {
+    const mvp = this.itemMap.get(Items.MVP)
+    if (mvp instanceof Phaser.GameObjects.Sprite) {
+      mvp.setVisible(true)
+      mvp.play(Items.MVP, true).once('animationcomplete', () => {
+        mvp.setVisible(false)
+      })
+    }
   }
 
   doWalk() {
