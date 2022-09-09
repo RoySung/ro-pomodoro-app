@@ -24,6 +24,7 @@ interface Record {
 
 export enum Events {
   StartFocus = 'start-focus',
+  StopFocus = 'stop-focus',
   FinishFocus = 'finish-focus',
   StartRest = 'start-rest',
   FinishRest = 'finish-rest'
@@ -116,6 +117,7 @@ const startFocus = () => {
 const stopFocus = () => {
   pause()
   goNextState(readyState)
+  emitter.emit(Events.StopFocus)
 }
 const startRest = () => {
   const now = new Date()

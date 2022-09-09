@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { emit } from 'process'
 import { Ref } from 'vue'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
-import { createGame, MainScene } from '~/game'
+import { createGame, MainScene, Game } from '~/game'
 import { eventsCenter as gameEventCenter, Events as GameEvent } from '~/game/eventsCenter'
 import { useCountdownModel, Events } from '~/models/countdownModel'
 
-const game = ref() as Ref<ReturnType<typeof createGame>>
+const game = ref() as Ref<Game>
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 const watch = async() => {
 }
@@ -21,6 +22,10 @@ emitter.on(Events.StartFocus, () => {
   gameEventCenter.emit(GameEvent.Walk)
 })
 
+emitter.on(Events.StopFocus, () => {
+  gameEventCenter.emit(GameEvent.Idle)
+})
+
 emitter.on(Events.StartRest, () => {
   gameEventCenter.emit(GameEvent.StartRest)
 })
@@ -30,15 +35,20 @@ emitter.on(Events.FinishRest, () => {
 })
 
 const stageComponent = computed(() => {
-  if (appstate.value.isReadyState) return ReadyStage
-  else if (appstate.value.isFocusState) return FocusStage
-  else if (appstate.value.isRestState) return RestStage
+  const { isReadyState, isFocusState, isRestState } = appstate.value
+  if (isReadyState) return ReadyStage
+  else if (isFocusState) return FocusStage
+  else if (isRestState) return RestStage
 
   return ReadyStage
 })
 
-onMounted(() => {
-  game.value = createGame()
+onMounted(async() => {
+  const newGame = await createGame()
+  game.value = newGame
+  const { isFocusState, isRestState } = appstate.value
+  if (isFocusState) emitter.emit(Events.StartFocus)
+  else if (isRestState) emitter.emit(Events.StartRest)
 })
 
 </script>

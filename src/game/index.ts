@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { random } from 'lodash-es'
+import { delay, random } from 'lodash-es'
 import { Events, eventsCenter } from '~/game/eventsCenter'
 
 import poringIdleSprite from '/game/poring/poring-idle-sprite.png'
@@ -10,6 +10,8 @@ import poringEatSprite from '/game/poring/poring-eat-sprite.png'
 import appleJuiceItemImg from '/game/items/apple-juice.png'
 import foodItemImg from '/game/items/food.gif'
 import MVPSprite from '/game/items/mvp-sprite.png'
+import emotionHeartSprite from '/game/emotions/emotion-heart-sprite.png'
+import emotionFindSprite from '/game/emotions/emotion-find-sprite.png'
 import bg0Img from '/game/bg-0.png'
 
 enum PoringRole {
@@ -25,7 +27,14 @@ enum Items {
   MVP = 'mvp'
 }
 
-const posAdjustConfig = {
+enum Emotions {
+  Heart = 'heart',
+  Find = 'find'
+}
+
+const ANIMATION_COMPLETE = 'animationcomplete'
+
+const posAdjustConfig: {[key in Items | Emotions]?: {x: number; y: number}} = {
   [Items.AppleJuice]: {
     x: -40,
     y: 55,
@@ -34,6 +43,26 @@ const posAdjustConfig = {
     x: 52,
     y: 32,
   },
+  [Emotions.Heart]: {
+    x: -45,
+    y: -45,
+  },
+}
+const emtionDefaultPos = {
+  x: -45,
+  y: -45,
+}
+Object.values(Emotions).forEach(emotion => posAdjustConfig[emotion] = emtionDefaultPos)
+const getPosAdjust = (key: Items | Emotions) => {
+  const posAdjust = posAdjustConfig[key]
+  if (!posAdjust) {
+    return {
+      x: 0,
+      y: 0,
+    }
+  }
+
+  return posAdjust
 }
 
 export class MainScene extends Phaser.Scene {
@@ -41,6 +70,8 @@ export class MainScene extends Phaser.Scene {
   mainRole?: Phaser.GameObjects.Sprite
   mainRoleMap: Map<PoringRole, Phaser.GameObjects.Sprite>
   itemMap: Map<Items, Phaser.GameObjects.Image | Phaser.GameObjects.Sprite>
+  emotionMap: Map<Emotions, Phaser.GameObjects.Sprite>
+  currentEmotion?: Phaser.GameObjects.Sprite | null
   isRest = false
   mainRoleStartPosition = {
     x: 0,
@@ -52,12 +83,14 @@ export class MainScene extends Phaser.Scene {
 
     this.mainRoleMap = new Map()
     this.itemMap = new Map()
+    this.emotionMap = new Map()
   }
 
   preload() {
     this.preloadBackground()
     this.preloadMainCharacter()
     this.preloadItems()
+    this.preloadEmotions()
   }
 
   preloadBackground() {
@@ -67,7 +100,7 @@ export class MainScene extends Phaser.Scene {
   preloadMainCharacter() {
     const { width, height } = this.game.canvas
     const x = width / 2
-    const y = height / 2 + 300
+    const y = height / 2 + 280
     this.mainRoleStartPosition = { x, y }
 
     this.load.spritesheet(PoringRole.Idle, poringIdleSprite, { frameWidth: 41, frameHeight: 39 })
@@ -82,12 +115,19 @@ export class MainScene extends Phaser.Scene {
     this.load.spritesheet(Items.MVP, MVPSprite, { frameWidth: 121, frameHeight: 268 })
   }
 
+  preloadEmotions() {
+    this.load.spritesheet(Emotions.Heart, emotionHeartSprite, { frameWidth: 29, frameHeight: 26 })
+    this.load.spritesheet(Emotions.Find, emotionFindSprite, { frameWidth: 29, frameHeight: 26 })
+  }
+
   registerEvents() {
     eventsCenter.on(Events.Idle, () => {
+      this.playEmotion(Emotions.Find, -1, 1000)
       this.doIdle()
     })
 
     eventsCenter.on(Events.Walk, () => {
+      this.stopCurrentEmotion()
       this.doWalk()
     })
 
@@ -105,8 +145,10 @@ export class MainScene extends Phaser.Scene {
     })
 
     eventsCenter.on(Events.FinishRest, () => {
+      this.playEmotion(Emotions.Heart)
       this.playMVP()
       this.isRest = false
+      delay(() => eventsCenter.emit(Events.Idle), 1000)
     })
   }
 
@@ -114,9 +156,10 @@ export class MainScene extends Phaser.Scene {
     this.createBackground()
     this.createMainCharacter()
     this.createItems()
+    this.createEmotions()
 
-    this.playMainRole(PoringRole.Idle)
     this.registerEvents()
+    eventsCenter.emit(Events.Idle)
   }
 
   createBackground() {
@@ -263,6 +306,30 @@ export class MainScene extends Phaser.Scene {
     itemCreators.forEach(creator => creator())
   }
 
+  createEmotions() {
+    const { x, y } = this.mainRoleStartPosition
+
+    const createEmotion = (emotionName: Emotions) => {
+      this.anims.create({
+        key: emotionName,
+        frames: this.anims.generateFrameNumbers(emotionName, { start: 0, end: 28 }),
+        frameRate: 20,
+        repeat: 0,
+      })
+      const adjustPos = getPosAdjust(emotionName)
+      const emotion = this.add.sprite(x + adjustPos.x, y + adjustPos.y, Emotions.Heart)
+      emotion.setScale(2)
+      emotion.setVisible(false)
+
+      this.emotionMap.set(emotionName, emotion)
+      return emotion
+    }
+
+    const emotionCreators = Object.values(Emotions).map(emotionName => () => createEmotion(emotionName))
+
+    emotionCreators.forEach(creator => creator())
+  }
+
   playMainRole(role: PoringRole): Phaser.GameObjects.Sprite | undefined {
     const targetRole = this.mainRoleMap.get(role)
     if (!targetRole) return
@@ -284,9 +351,51 @@ export class MainScene extends Phaser.Scene {
     const mvp = this.itemMap.get(Items.MVP)
     if (mvp instanceof Phaser.GameObjects.Sprite) {
       mvp.setVisible(true)
-      mvp.play(Items.MVP, true).once('animationcomplete', () => {
+      mvp.play(Items.MVP, true).once(ANIMATION_COMPLETE, () => {
         mvp.setVisible(false)
       })
+    }
+  }
+
+  /**
+   *
+   * @param {Emotions} emotionName
+   * @param {number} [times=1] value -1 for infinity
+   * @param {number} [delayTime=0]
+   * @memberof MainScene
+   */
+  playEmotion(emotionName: Emotions, times = 1, delayTime = 0) {
+    // TODO: logic is complex, need to refact it later
+    this.stopCurrentEmotion()
+    const emotion = this.emotionMap.get(emotionName)
+    if (!emotion) return
+
+    const getIsDiff = () => this.currentEmotion && (this.currentEmotion !== emotion)
+
+    const play = () => {
+      if (!this.currentEmotion) return
+      emotion.setVisible(true)
+
+      emotion.play(emotionName, true).once(ANIMATION_COMPLETE, () => {
+        const isDiff = getIsDiff()
+        const nextTimes = isDiff || !this.currentEmotion ? 0 : times - 1
+        if (nextTimes === 0) {
+          emotion.setVisible(false)
+          if (this.currentEmotion === emotion) this.currentEmotion = null
+        }
+        else {
+          this.playEmotion(emotionName, nextTimes, delayTime)
+        }
+      })
+    }
+    this.currentEmotion = emotion
+    delay(() => play(), delayTime)
+  }
+
+  stopCurrentEmotion() {
+    if (this.currentEmotion) {
+      this.currentEmotion.setVisible(false)
+      this.currentEmotion = null
     }
   }
 
@@ -303,10 +412,10 @@ export class MainScene extends Phaser.Scene {
     if (!this.mainRole || !appleJuice) return
 
     const { x, y } = this.mainRole
-    const posAdjust = posAdjustConfig[Items.AppleJuice]
+    const posAdjust = getPosAdjust(Items.AppleJuice)
     appleJuice.setPosition(x + posAdjust.x, y + posAdjust.y)
     appleJuice.setVisible(true)
-    this.playMainRole(PoringRole.Drink)?.once('animationcomplete', () => {
+    this.playMainRole(PoringRole.Drink)?.once(ANIMATION_COMPLETE, () => {
       appleJuice?.setVisible(false)
       this.playMainRole(PoringRole.Idle)
     })
@@ -317,10 +426,10 @@ export class MainScene extends Phaser.Scene {
     if (!this.mainRole || !food) return
 
     const { x, y } = this.mainRole
-    const posAdjust = posAdjustConfig[Items.Food]
+    const posAdjust = getPosAdjust(Items.Food)
     food.setPosition(x + posAdjust.x, y + posAdjust.y)
     food.setVisible(true)
-    this.playMainRole(PoringRole.Eat)?.once('animationcomplete', () => {
+    this.playMainRole(PoringRole.Eat)?.once(ANIMATION_COMPLETE, () => {
       food?.setVisible(false)
       this.playMainRole(PoringRole.Idle)
     })
@@ -347,28 +456,44 @@ export class MainScene extends Phaser.Scene {
     return this.mainRole === idelRole
   }
 
+  get isEmotioning() {
+    return !!this.currentEmotion
+  }
+
   update() {
     if (this.bg && this.isWalking) this.bg.tilePositionX += 3
     if (this.isIdling && this.isRest) this.doRest()
   }
 }
 
-const config = {
-  type: Phaser.AUTO,
-  parent: 'trip-pomodoro-canvas-wrap',
-  width: 400,
-  height: 800,
-}
-
-class Game extends Phaser.Game {
-  constructor(GameConfig?: Phaser.Types.Core.GameConfig) {
-    super(GameConfig)
+export class Game extends Phaser.Game {
+  constructor(config: Phaser.Types.Core.GameConfig) {
+    super(config)
     this.scene.add('Game', MainScene)
     this.scene.start('Game')
   }
 }
 
-export const createGame = () => {
-  const game = new Game(config)
-  return game
+export const createGame = (): Promise<Game> => {
+  return new Promise((resolve) => {
+    const config: Phaser.Types.Core.GameConfig = {
+      type: Phaser.AUTO,
+      parent: 'trip-pomodoro-canvas-wrap',
+      width: 400,
+      height: 800,
+      callbacks: {
+        postBoot(game: Phaser.Game) {
+          const scene = game.scene.getScene('Game')
+          // scene.load.on('progress', (value) => {
+          //   console.log('Loading Progress: ', value)
+          // })
+          scene.load.once('complete', () => {
+            resolve(game)
+          })
+        },
+      },
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const game = new Game(config)
+  })
 }
