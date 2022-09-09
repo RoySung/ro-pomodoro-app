@@ -13,6 +13,7 @@ import VueI18n from '@intlify/vite-plugin-vue-i18n'
 import Prism from 'markdown-it-prism'
 // @ts-expect-error missing types
 import LinkAttributes from 'markdown-it-link-attributes'
+import { VitePluginFonts } from 'vite-plugin-fonts'
 
 const markdownWrapperClasses = 'prose prose-sm m-auto text-left'
 
@@ -127,6 +128,12 @@ export default defineConfig({
       runtimeOnly: true,
       compositionOnly: true,
       include: [path.resolve(__dirname, 'locales/**')],
+    }),
+
+    VitePluginFonts({
+      google: {
+        families: ['Press Start 2P'],
+      },
     }),
   ],
 

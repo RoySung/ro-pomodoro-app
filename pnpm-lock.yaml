@@ -19,6 +19,7 @@ specifiers:
   markdown-it-link-attributes: ^3.0.0
   markdown-it-prism: ^2.2.0
   mitt: ^3.0.0
+  nes.css: ^2.3.0
   nprogress: ^0.2.0
   phaser: 3.15.1
   pinia: ^2.0.0-rc.6
@@ -28,6 +29,7 @@ specifiers:
   unplugin-auto-import: ^0.1.5
   vite: ^2.5.1
   vite-plugin-components: ^0.13.2
+  vite-plugin-fonts: ^0.6.0
   vite-plugin-icons: ^0.6.5
   vite-plugin-md: ^0.11.0
   vite-plugin-pages: ^0.17.4
@@ -46,6 +48,7 @@ dependencies:
   '@vueuse/head': 0.6.0_vue@3.2.6
   lodash-es: 4.17.21
   mitt: 3.0.0
+  nes.css: 2.3.0
   nprogress: 0.2.0
   phaser: 3.15.1
   pinia: 2.0.0-rc.6_typescript@4.3.5+vue@3.2.6
@@ -75,6 +78,7 @@ devDependencies:
   unplugin-auto-import: 0.1.5_vite@2.5.1
   vite: 2.5.1
   vite-plugin-components: 0.13.2_vite@2.5.1
+  vite-plugin-fonts: 0.6.0_vite@2.5.1
   vite-plugin-icons: 0.6.5_346cae4599d96836b777e6b3520c90a2
   vite-plugin-md: 0.11.0_vite@2.5.1
   vite-plugin-pages: 0.17.4_0af502564fb53278e4f42e4690bab263
@@ -3316,6 +3320,17 @@ packages:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
     dev: true
 
+  /fast-glob/3.2.12:
+    resolution: {integrity: sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w==}
+    engines: {node: '>=8.6.0'}
+    dependencies:
+      '@nodelib/fs.stat': 2.0.5
+      '@nodelib/fs.walk': 1.2.8
+      glob-parent: 5.1.2
+      merge2: 1.4.1
+      micromatch: 4.0.4
+    dev: true
+
   /fast-glob/3.2.7:
     resolution: {integrity: sha512-rYGMRwip6lUMvYD3BTScMwT1HtAs2d71SMv66Vrxs0IekGZEjhM0pcMfjQPnknBt2zeCwQMEupiN02ZP4DiT1Q==}
     engines: {node: '>=8'}
@@ -4451,6 +4466,11 @@ packages:
     resolution: {integrity: sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==}
     engines: {node: '>= 0.6'}
     dev: true
+
+  /nes.css/2.3.0:
+    resolution: {integrity: sha512-lCFZs9vj3f5RVdbvTL/kSxiYsOARwSeAdJaMNo+bCgmWOO9x8ay7QpT4yQVKHy3r5Dttzd0uqVdpt3fvvx6EpQ==}
+    engines: {node: 10.x}
+    dev: false
 
   /no-case/2.3.2:
     resolution: {integrity: sha512-rmTZ9kz+f3rCvK2TD1Ue/oZlns7OGoIWP4fc3llxxRXlOkHKoWPPWJOfFYpITabSow43QJbRIoHQXtt10VldyQ==}
@@ -6018,6 +6038,15 @@ packages:
       vite: 2.5.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /vite-plugin-fonts/0.6.0_vite@2.5.1:
+    resolution: {integrity: sha512-dV6nnLEju8k5EmvlBH6egxkVZ+rgc5zWsJr9+cNRXBMEDnpRGHcZPI260UEDNg2yB99wSTNER2eduEvZFbMIGw==}
+    peerDependencies:
+      vite: ^2.0.0 || ^3.0.0
+    dependencies:
+      fast-glob: 3.2.12
+      vite: 2.5.1
     dev: true
 
   /vite-plugin-icons/0.6.5_346cae4599d96836b777e6b3520c90a2:

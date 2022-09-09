@@ -9,8 +9,13 @@ body,
 }
 
 html.dark {
-  background: #121212;
+  background: #121212 !important;
 }
+
+html.dark body {
+  background: #121212 !important;  
+}
+
 
 #nprogress {
   pointer-events: none;
@@ -40,4 +45,32 @@ html.dark {
     opacity-75 transition duration-200 ease-in-out
     hover:opacity-100 hover:text-teal-600;
   font-size: 0.9em;
+}
+
+* {
+  cursor: url('/cursor/normal/cursor_00.png'), auto;
+  animation: cursor 1000ms infinite;
+}
+
+button, a {
+  cursor: url('/cursor/click/cursor_click_0.png'), auto ;
+  animation: cursor-click 500ms infinite;
+}
+@keyframes cursor {
+  0% {cursor: url('/cursor/normal/cursor_00.png'), auto;}
+  10% {cursor: url('/cursor/normal/cursor_01.png'), auto;}
+  20% {cursor: url('/cursor/normal/cursor_02.png'), auto;}
+  30% {cursor: url('/cursor/normal/cursor_03.png'), auto;}
+  40% {cursor: url('/cursor/normal/cursor_04.png'), auto;}
+  50% {cursor: url('/cursor/normal/cursor_05.png'), auto;}
+  60% {cursor: url('/cursor/normal/cursor_06.png'), auto;}
+  70% {cursor: url('/cursor/normal/cursor_07.png'), auto;}
+  80% {cursor: url('/cursor/normal/cursor_08.png'), auto;}
+  90% {cursor: url('/cursor/normal/cursor_09.png'), auto;}
+  100% {cursor: url('/cursor/normal/cursor_10.png'), auto;}
+}
+@keyframes cursor-click {
+  0% {cursor: url('/cursor/click/cursor_click_0.png'), auto ;}
+  50% {cursor: url('/cursor/click/cursor_click_1.png'), auto ;}
+  100% {cursor: url('/cursor/click/cursor_click_2.png'), auto ;}
 }

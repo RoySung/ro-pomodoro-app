@@ -9,8 +9,12 @@ const {
 <template>
   <div>
     Ready Stage
-    <br />
-    <button :onclick="startFocus">
+    <br><br><br>
+    <button
+      type="button"
+      class="nes-btn"
+      :onclick="startFocus"
+    >
       Start Focus
     </button>
   </div>
