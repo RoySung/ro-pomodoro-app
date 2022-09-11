@@ -9,7 +9,7 @@ const {
 <template>
   <div>
     Ready Stage
-    <br><br><br>
+    <br><br><br><br><br><br>
     <button
       type="button"
       class="nes-btn"

@@ -73,15 +73,25 @@ const isOverTime = computed(() => {
   return isOver
 })
 const countDownTimeStr = computed(() => {
-  const durationSec = appState.value.isFocusState ? ms2sec(focusDurationMS.value) : ms2sec(restDurationMS.value)
-  const isOver = isOverTime.value
-  const countDownTime = Math.abs(durationSec - currentTimeGap.value)
+  const { isReadyState, isFocusState } = appState.value
+  const durationSec = isFocusState ? ms2sec(focusDurationMS.value) : ms2sec(restDurationMS.value)
+  const countDownTime = isReadyState ? 0 : Math.abs(durationSec - currentTimeGap.value)
+  const isOver = isReadyState ? false : isOverTime.value
   const sec = padStart(String(countDownTime % 60), 2, '0')
   const minu = padStart(String(Math.floor(countDownTime / 60)), 2, '0')
 
   const timeStr = isOver ? `+${minu}:${sec}` : `${minu}:${sec}`
 
   return timeStr
+})
+const durationTimeStr = computed(() => {
+  const { isRestState } = appState.value
+  const durationMS = !isRestState ? focusDurationMS.value : restDurationMS.value
+  const durationSec = ms2sec(durationMS)
+  const sec = padStart(String(durationSec % 60), 2, '0')
+  const minu = padStart(String(Math.floor(durationSec / 60)), 2, '0')
+
+  return `${minu}:${sec}`
 })
 const setCurrentTimeGap = () => {
   const now = new Date()
@@ -158,13 +168,16 @@ const finishFocus = () => {
 export const useCountdownModel = () => {
   if (appState.value.isFocusState || appState.value.isRestState) resume()
   return {
-    focusDuration: focusDurationMS,
-    restDuration: restDurationMS,
-    appstate: appState,
+    focusDurationMS,
+    restDurationMS,
+    appState,
     startTime,
     currentTimeGap,
+    currentRecord,
+    records,
     isOverTime,
     countDownTimeStr,
+    durationTimeStr,
     startFocus,
     stopFocus,
     finishFocus,

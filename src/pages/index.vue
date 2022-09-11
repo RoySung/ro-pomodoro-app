@@ -4,6 +4,7 @@ import { Ref } from 'vue'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
+import StatusWindow from '~/components/gameUIStages/widgets/StatusWindow.vue'
 import { createGame, MainScene, Game } from '~/game'
 import { eventsCenter as gameEventCenter, Events as GameEvent } from '~/game/eventsCenter'
 import { useCountdownModel, Events } from '~/models/countdownModel'
@@ -14,7 +15,7 @@ const watch = async() => {
 }
 
 const {
-  appstate,
+  appState,
   emitter,
 } = useCountdownModel()
 
@@ -35,7 +36,7 @@ emitter.on(Events.FinishRest, () => {
 })
 
 const stageComponent = computed(() => {
-  const { isReadyState, isFocusState, isRestState } = appstate.value
+  const { isReadyState, isFocusState, isRestState } = appState.value
   if (isReadyState) return ReadyStage
   else if (isFocusState) return FocusStage
   else if (isRestState) return RestStage
@@ -46,7 +47,7 @@ const stageComponent = computed(() => {
 onMounted(async() => {
   const newGame = await createGame()
   game.value = newGame
-  const { isFocusState, isRestState } = appstate.value
+  const { isFocusState, isRestState } = appState.value
   if (isFocusState) emitter.emit(Events.StartFocus)
   else if (isRestState) emitter.emit(Events.StartRest)
 })
@@ -59,6 +60,7 @@ onMounted(async() => {
     </div>
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
       <component :is="stageComponent"></component>
+      <StatusWindow></StatusWindow>
     </div>
   </div>
 </template>

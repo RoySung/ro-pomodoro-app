@@ -38,6 +38,12 @@ export default defineConfig({
           },
         },
       },
+      colors: {
+        black: '#0c0c0c',
+      },
+      fontFamily: {
+        ps2p: ['Press Start 2P', 'sans-serif'],
+      },
     },
   },
 })

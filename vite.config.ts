@@ -132,7 +132,7 @@ export default defineConfig({
 
     VitePluginFonts({
       google: {
-        families: ['Press Start 2P'],
+        families: ['Press Start 2P', 'Sans serif'],
       },
     }),
   ],

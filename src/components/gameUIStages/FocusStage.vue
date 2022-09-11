@@ -14,7 +14,7 @@ const {
     Focus Stage
     <br>
     <h1>{{ countDownTimeStr }}</h1>
-    <br>
+    <br><br><br><br><br>
     <button v-if="!isOverTime" :onclick="stopFocus">
       Stop Focus
     </button>
