@@ -3,7 +3,10 @@
     <div class="window__top-bar">
       <button class="window-ball-btn">
       </button>
-      <span class="relative flex pl-2 text-xs leading-5 text-black">RoySung</span>
+      <span
+        class="relative flex pl-2 text-xs leading-5 text-black"
+        v-text="title"
+      ></span>
       <button class="window-ball-btn ml-auto">
       </button>
     </div>
@@ -17,13 +20,15 @@
 </template>
 
 <script lang="ts" setup>
+const { title } = defineProps({
+  title: String,
+})
 
 </script>
 
 <style lang="scss" scoped>
 
 .window {
-  @apply  absolute top-0 left-0 w-full text-black;
   border-radius: 3px;
   &__top-bar {
     @apply  flex items-center;

@@ -9,6 +9,7 @@ interface AppState {
   isFocusState?: boolean
   isReadyState?: boolean
   isRestState?: boolean
+  isFinishState?: boolean
 }
 
 interface Record {
@@ -27,7 +28,8 @@ export enum Events {
   StopFocus = 'stop-focus',
   FinishFocus = 'finish-focus',
   StartRest = 'start-rest',
-  FinishRest = 'finish-rest'
+  FinishRest = 'finish-rest',
+  FinishCycle = 'finish-cycle'
 }
 
 const emitter = mitt()
@@ -44,6 +46,10 @@ const readyState: AppState = {
 const restState: AppState = {
   name: 'Rest State',
   isRestState: true,
+}
+const finishState: AppState = {
+  name: 'Finish State',
+  isFinishState: true,
 }
 
 const defaultRecord: Record = {
@@ -80,7 +86,7 @@ const countDownTimeStr = computed(() => {
   const sec = padStart(String(countDownTime % 60), 2, '0')
   const minu = padStart(String(Math.floor(countDownTime / 60)), 2, '0')
 
-  const timeStr = isOver ? `+${minu}:${sec}` : `${minu}:${sec}`
+  const timeStr = isOver ? `+${minu}:${sec}` : ` ${minu}:${sec}`
 
   return timeStr
 })
@@ -141,16 +147,21 @@ const startRest = () => {
   emitter.emit(Events.StartRest)
 }
 
+const finishCycle = () => {
+  const record = currentRecord.value
+  records.value.push(record)
+  setCurrentRecord(cloneDeep(defaultRecord))
+  goNextState(readyState)
+}
+
 const finishRest = () => {
+  pause()
   const record = currentRecord.value
   record.rest.endTime = new Date().toUTCString()
 
-  pause()
   setCurrentRecord(record)
-  goNextState(readyState)
-  records.value.push(record)
+  goNextState(finishState)
 
-  setCurrentRecord(cloneDeep(defaultRecord))
   emitter.emit(Events.FinishRest)
 }
 
@@ -184,6 +195,7 @@ export const useCountdownModel = () => {
     startRest,
     stopRest,
     finishRest,
+    finishCycle,
     emitter,
   }
 }

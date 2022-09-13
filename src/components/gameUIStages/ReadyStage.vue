@@ -1,22 +1,10 @@
 <script lang="ts" setup>
-import { useCountdownModel } from '~/models/countdownModel'
-
-const {
-  startFocus,
-} = useCountdownModel()
+import ActionMenuWindow from '~/components/gameUIStages/widgets/ActionMenuWindow.vue'
 
 </script>
 <template>
-  <div>
-    Ready Stage
-    <br><br><br><br><br><br>
-    <button
-      type="button"
-      class="nes-btn"
-      :onclick="startFocus"
-    >
-      Start Focus
-    </button>
+  <div id="ready-stage">
+    <ActionMenuWindow class="w-4/5 absolute top-[30%] left-[10%]" />
   </div>
 </template>
 

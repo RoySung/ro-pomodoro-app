@@ -1,5 +1,5 @@
 <template>
-  <WindowLayout>
+  <WindowLayout :title="userName">
     <template #content>
       <div class="flex items-center text-size-[8px] min-h-[25px]">
         <span v-if="!appState.isRestState">Focus Time.</span>
@@ -30,6 +30,9 @@ const {
   stopFocus,
   stopRest,
 } = useCountdownModel()
+
+// TODO: get value from setting
+const userName = ref('RoySung')
 
 const isShowStopBtn = computed(() => !isOverTime.value && (appState.value.isFocusState || appState.value.isRestState))
 const timeStr = computed(() => `${countDownTimeStr.value}/${durationTimeStr.value}`)

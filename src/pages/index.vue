@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { emit } from 'process'
 import { Ref } from 'vue'
+import { delay } from 'lodash-es'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
@@ -17,6 +18,7 @@ const watch = async() => {
 const {
   appState,
   emitter,
+  finishCycle,
 } = useCountdownModel()
 
 emitter.on(Events.StartFocus, () => {
@@ -33,15 +35,19 @@ emitter.on(Events.StartRest, () => {
 
 emitter.on(Events.FinishRest, () => {
   gameEventCenter.emit(GameEvent.FinishRest)
+  delay(() => emitter.emit(Events.FinishCycle), 5000)
+})
+
+emitter.on(Events.FinishCycle, () => {
+  finishCycle()
 })
 
 const stageComponent = computed(() => {
-  const { isReadyState, isFocusState, isRestState } = appState.value
+  const { isReadyState, isFocusState, isRestState, isFinishState } = appState.value
   if (isReadyState) return ReadyStage
   else if (isFocusState) return FocusStage
   else if (isRestState) return RestStage
-
-  return ReadyStage
+  else if (isFinishState) return () => {}
 })
 
 onMounted(async() => {
@@ -60,7 +66,7 @@ onMounted(async() => {
     </div>
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
       <component :is="stageComponent"></component>
-      <StatusWindow></StatusWindow>
+      <StatusWindow class="absolute top-0 left-0 w-full text-black"></StatusWindow>
     </div>
   </div>
 </template>

@@ -1,26 +1,10 @@
 <script lang="ts" setup>
-import { useCountdownModel } from '~/models/countdownModel'
-
-const {
-  countDownTimeStr,
-  isOverTime,
-  finishRest,
-  stopRest,
-} = useCountdownModel()
+import ActionMenuWindow from '~/components/gameUIStages/widgets/ActionMenuWindow.vue'
 
 </script>
 <template>
-  <div>
-    Rest Stage
-    <br>
-    <h1>{{ countDownTimeStr }}</h1>
-    <br><br><br><br><br><br>
-    <button v-if="isOverTime" :onclick="finishRest">
-      Finish Rest
-    </button>
-    <button v-else :onclick="stopRest">
-      Stop Rest
-    </button>
+  <div id="rest-stage">
+    <ActionMenuWindow class="w-4/5 absolute top-[30%] left-[10%]" />
   </div>
 </template>
 

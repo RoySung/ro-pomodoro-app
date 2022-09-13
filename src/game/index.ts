@@ -145,10 +145,10 @@ export class MainScene extends Phaser.Scene {
     })
 
     eventsCenter.on(Events.FinishRest, () => {
-      this.playEmotion(Emotions.Heart)
+      this.playEmotion(Emotions.Heart, 2, 1000)
       this.playMVP()
       this.isRest = false
-      delay(() => eventsCenter.emit(Events.Idle), 1000)
+      delay(() => eventsCenter.emit(Events.Idle), 4000)
     })
   }
 

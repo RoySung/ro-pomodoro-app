@@ -1,26 +1,10 @@
 <script lang="ts" setup>
-import { useCountdownModel } from '~/models/countdownModel'
-
-const {
-  countDownTimeStr,
-  isOverTime,
-  stopFocus,
-  finishFocus,
-} = useCountdownModel()
+import ActionMenuWindow from '~/components/gameUIStages/widgets/ActionMenuWindow.vue'
 
 </script>
 <template>
-  <div>
-    Focus Stage
-    <br>
-    <h1>{{ countDownTimeStr }}</h1>
-    <br><br><br><br><br>
-    <button v-if="!isOverTime" :onclick="stopFocus">
-      Stop Focus
-    </button>
-    <button v-else :onclick="finishFocus">
-      Finish Focus
-    </button>
+  <div id="focus-stage">
+    <ActionMenuWindow class="w-4/5 absolute top-[30%] left-[10%]" />
   </div>
 </template>
 
