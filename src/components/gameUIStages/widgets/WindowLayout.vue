@@ -10,8 +10,15 @@
       <button class="window-ball-btn ml-auto">
       </button>
     </div>
-    <div class="window__content">
-      <slot name="content"></slot>
+    <div class="window__content relative">
+      <div class="relative">
+        <slot name="content"></slot>
+      </div>
+      <div class="window__footer relative">
+        <div class="relative">
+          <slot name="footer"></slot>
+        </div>
+      </div>
     </div>
     <div class="window__status-wrap p-1">
       <slot name="status"></slot>
@@ -20,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-const { title } = defineProps({
+defineProps({
   title: String,
 })
 
@@ -57,14 +64,27 @@ const { title } = defineProps({
     }
   }
   &__content {
-    @apply p-3;
+    // @apply p-3;
     background: repeating-linear-gradient(
       #f9fdf9,
-      #f0f3f0 10%,
+      #f0f3f0 5px,
     );
     border: #818aaa 1px solid;
     border-top: 0;
     border-radius: 0px 0px 3px 3px;
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left:  0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: white;
+      opacity: 0.5;
+      filter: blur(3px);
+    }
   }
 }
 

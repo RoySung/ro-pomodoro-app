@@ -1,7 +1,7 @@
 <template>
   <WindowLayout v-if="isShow" title="Actions" class="text-black text-sm">
     <template #content>
-      <div>
+      <div class="text-center p-4">
         <r-button class="w-4/5" @click="action">
           {{ actionText }}
         </r-button>

@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { emit } from 'process'
 import { Ref } from 'vue'
 import { delay } from 'lodash-es'
+import IconSettings from 'virtual:vite-icons/ic/baseline-settings'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
 import StatusWindow from '~/components/gameUIStages/widgets/StatusWindow.vue'
+import RButton from '~/components/Button.vue'
 import { createGame, MainScene, Game } from '~/game'
 import { eventsCenter as gameEventCenter, Events as GameEvent } from '~/game/eventsCenter'
 import { useCountdownModel, Events } from '~/models/countdownModel'
+import SettingsWindow from '~/components/gameUIStages/widgets/SettingsWindow.vue'
 
 const game = ref() as Ref<Game>
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 const watch = async() => {
 }
+
+const isShowSettings = ref(false)
+const toggleSettings = () => isShowSettings.value = !isShowSettings.value
 
 const {
   appState,
@@ -53,9 +58,10 @@ const stageComponent = computed(() => {
 onMounted(async() => {
   const newGame = await createGame()
   game.value = newGame
-  const { isFocusState, isRestState } = appState.value
+  const { isFocusState, isRestState, isFinishState } = appState.value
   if (isFocusState) emitter.emit(Events.StartFocus)
   else if (isRestState) emitter.emit(Events.StartRest)
+  else if (isFinishState) emitter.emit(Events.FinishCycle)
 })
 
 </script>
@@ -67,6 +73,13 @@ onMounted(async() => {
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
       <component :is="stageComponent"></component>
       <StatusWindow class="absolute top-0 left-0 w-full text-black"></StatusWindow>
+      <r-button
+        class="!absolute bottom-[7px] right-[2px] text-gray-700 w-[50px] h-[50px]"
+        @click="toggleSettings"
+      >
+        <IconSettings style="font-size: 1.5rem;" />
+      </r-button>
+      <SettingsWindow v-model:isShow="isShowSettings" class="absolute top-0 left-0 w-full h-full" />
     </div>
   </div>
 </template>

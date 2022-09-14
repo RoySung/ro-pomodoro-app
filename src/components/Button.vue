@@ -1,6 +1,6 @@
 <template>
-  <button class="r-button " @click="handleClick">
-    <div class="relative pointer-events-none">
+  <button class="r-button relative" @click="handleClick">
+    <div class="relative pointer-events-none flex justify-center">
       <slot></slot>
     </div>
   </button>
@@ -21,7 +21,7 @@ const handleClick = (e: MouseEvent): void => {
 
 <style lang="scss" scoped>
   .r-button  {
-    @apply bg-white p-1 border-[#ababab] border-solid border-2 rounded-[8px] relative overflow-hidden;
+    @apply bg-white p-1 border-[#ababab] border-solid border-2 rounded-[8px] overflow-hidden;
     border-bottom: 1px #6b6b6b solid;
     box-shadow: 0px 1px 1px #6b6b6b;
     &:before {
@@ -48,6 +48,9 @@ const handleClick = (e: MouseEvent): void => {
     &:hover {
       box-shadow: 0px 0px 1px #6b6b6b;
       background: #dddddd;
+    }
+    &:focus {
+      outline: none;
     }
   }
 

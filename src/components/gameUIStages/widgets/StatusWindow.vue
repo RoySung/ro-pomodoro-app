@@ -1,7 +1,7 @@
 <template>
   <WindowLayout :title="userName">
     <template #content>
-      <div class="flex items-center text-size-[8px] min-h-[25px]">
+      <div class="flex items-center text-size-[8px] min-h-[25px] p-2">
         <span v-if="!appState.isRestState">Focus Time.</span>
         <span v-else>Rest Time.</span>
         <span class="ml-1" v-text="timeStr"></span>
@@ -11,7 +11,7 @@
       </div>
     </template>
     <template #status>
-      <MvpWidget :count="records.length" />
+      <MvpWidget :count="recordsCount" />
     </template>
   </WindowLayout>
 </template>
@@ -20,10 +20,11 @@
 import IconPauseFilled from 'virtual:vite-icons/carbon/pause-filled'
 import WindowLayout from '~/components/gameUIStages/widgets/WindowLayout.vue'
 import { useCountdownModel } from '~/models/countdownModel'
+import { useSettingsModel } from '~/models/settingsModel'
 
 const {
   appState,
-  records,
+  recordsCount,
   countDownTimeStr,
   durationTimeStr,
   isOverTime,
@@ -31,8 +32,7 @@ const {
   stopRest,
 } = useCountdownModel()
 
-// TODO: get value from setting
-const userName = ref('RoySung')
+const { userName } = useSettingsModel()
 
 const isShowStopBtn = computed(() => !isOverTime.value && (appState.value.isFocusState || appState.value.isRestState))
 const timeStr = computed(() => `${countDownTimeStr.value}/${durationTimeStr.value}`)

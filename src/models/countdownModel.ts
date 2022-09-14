@@ -1,8 +1,7 @@
 import { padStart, cloneDeep } from 'lodash-es'
 import mitt from 'mitt'
-const sec2ms = (s: number) => s * 1000
-const minu2ms = (m: number) => sec2ms(m * 60)
-const ms2sec = (ms: number) => Math.floor(ms / 1000)
+import { useSettingsModel } from '~/models/settingsModel'
+import { ms2sec } from '~/utils/time'
 
 interface AppState {
   name: string
@@ -31,6 +30,8 @@ export enum Events {
   FinishRest = 'finish-rest',
   FinishCycle = 'finish-cycle'
 }
+
+const { focusDurationMS, restDurationMS } = useSettingsModel()
 
 const emitter = mitt()
 
@@ -63,15 +64,13 @@ const defaultRecord: Record = {
   },
 }
 
-// const focusDuration = useStorage('focus-duration', minu2ms(30))
-// const restDuration = useStorage('rest-duration', minu2ms(5))
-const focusDurationMS = useStorage('focus-duration', 5000)
-const restDurationMS = useStorage('rest-duration', 5000)
 const appState = useStorage('app-state', readyState)
 const startTime = useStorage('start-time', new Date())
 const currentTimeGap = useStorage('current-time-gap', 0)
 const currentRecord = useStorage('current-record', cloneDeep(defaultRecord))
 const records = useStorage('records', [] as Record[])
+
+const recordsCount = computed(() => records.value.length)
 
 const isOverTime = computed(() => {
   const durationSec = appState.value.isFocusState ? ms2sec(focusDurationMS.value) : ms2sec(restDurationMS.value)
@@ -114,6 +113,9 @@ const { resume, pause } = useIntervalFn(() => {
 
 const setStartTime = (date: Date) => startTime.value = date
 const setCurrentRecord = (record: Record) => currentRecord.value = record
+const saveRecord = (record: Record) => {
+  records.value.push(record)
+}
 
 watch(startTime, () => {
   setCurrentTimeGap()
@@ -148,8 +150,7 @@ const startRest = () => {
 }
 
 const finishCycle = () => {
-  const record = currentRecord.value
-  records.value.push(record)
+  saveRecord(currentRecord.value)
   setCurrentRecord(cloneDeep(defaultRecord))
   goNextState(readyState)
 }
@@ -178,6 +179,7 @@ const finishFocus = () => {
 
 export const useCountdownModel = () => {
   if (appState.value.isFocusState || appState.value.isRestState) resume()
+
   return {
     focusDurationMS,
     restDurationMS,
@@ -186,6 +188,7 @@ export const useCountdownModel = () => {
     currentTimeGap,
     currentRecord,
     records,
+    recordsCount,
     isOverTime,
     countDownTimeStr,
     durationTimeStr,
