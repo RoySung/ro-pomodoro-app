@@ -478,8 +478,8 @@ export const createGame = (): Promise<Game> => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       parent: 'trip-pomodoro-canvas-wrap',
-      width: 400,
-      height: 800,
+      width: 380,
+      height: 760,
       callbacks: {
         postBoot(game: Phaser.Game) {
           const scene = game.scene.getScene('Game')
