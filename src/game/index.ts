@@ -158,6 +158,7 @@ export class MainScene extends Phaser.Scene {
     this.createItems()
     this.createEmotions()
 
+    this.doIdle()
     this.registerEvents()
   }
 

@@ -18,6 +18,7 @@ import { VitePluginFonts } from 'vite-plugin-fonts'
 const markdownWrapperClasses = 'prose prose-sm m-auto text-left'
 
 export default defineConfig({
+  base: process.env.BASE_URL,
   resolve: {
     alias: {
       '~/': `${path.resolve(__dirname, 'src')}/`,
