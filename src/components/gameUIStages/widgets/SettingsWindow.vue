@@ -4,7 +4,7 @@
     <WindowLayout ref="windowRef" class="w-4/5 absolute top-[20%] left-[10%]" title="Settings">
       <template #content>
         <div class="text-black text-xs bg-white p-3">
-          <div class="nes-field">
+          <div class="nes-field  mb-4">
             <label for="name_field">Your Name</label>
             <input
               id="name_field"
@@ -14,12 +14,11 @@
               class="nes-input"
             >
           </div>
-          <br>
-          <div class="nes-field">
+          <div class="nes-field  mb-4">
             <label for="focus_duration_field">Focus Time</label>
             <input
               id="focus_duration_field"
-              v-model="focusDurationMinu"
+              v-model="newFocusDurationMinu"
               type="number"
               :class="{
                 'nes-input': true,
@@ -28,16 +27,28 @@
               placeholder="Minute"
             >
           </div>
-          <br>
           <div class="nes-field mb-4">
             <label for="rest_duration_field">Rest Time </label>
             <input
               id="rest_duration_field"
-              v-model="restDurationMinu"
+              v-model="newRestDurationMinu"
               type="number"
               :class="{
                 'nes-input': true,
                 'is-success': isEditedRestDur
+              }"
+              placeholder="Minute"
+            >
+          </div>
+          <div class="nes-field mb-4">
+            <label for="rest_duration_field">Notification Interval</label>
+            <input
+              id="rest_duration_field"
+              v-model="newNotificationIntervalMinu"
+              type="number"
+              :class="{
+                'nes-input': true,
+                'is-success': isEditedNotifInterval
               }"
               placeholder="Minute"
             >
@@ -77,29 +88,35 @@ const {
   userName,
   focusDurationMS,
   restDurationMS,
+  notificationIntervalMS,
   setUserName,
   setFocusDuration,
   setRestDuration,
+  setNotificationInterval,
 } = useSettingsModel()
 
 const newUserName = ref('')
-const focusDurationMinu = ref(0)
-const restDurationMinu = ref(0)
+const newFocusDurationMinu = ref(0)
+const newRestDurationMinu = ref(0)
+const newNotificationIntervalMinu = ref(0)
 
 const isEditedName = computed(() => newUserName.value !== userName.value)
-const isEditedFocusDur = computed(() => focusDurationMinu.value !== ms2minu(focusDurationMS.value))
-const isEditedRestDur = computed(() => restDurationMinu.value !== ms2minu(restDurationMS.value))
+const isEditedFocusDur = computed(() => newFocusDurationMinu.value !== ms2minu(focusDurationMS.value))
+const isEditedRestDur = computed(() => newRestDurationMinu.value !== ms2minu(restDurationMS.value))
+const isEditedNotifInterval = computed(() => newNotificationIntervalMinu.value !== ms2minu(notificationIntervalMS.value))
 
 const setupValues = () => {
-  focusDurationMinu.value = ms2minu(focusDurationMS.value)
-  restDurationMinu.value = ms2minu(restDurationMS.value)
+  newFocusDurationMinu.value = ms2minu(focusDurationMS.value)
+  newRestDurationMinu.value = ms2minu(restDurationMS.value)
+  newNotificationIntervalMinu.value = ms2minu(notificationIntervalMS.value)
   newUserName.value = userName.value
 }
 
 const saveSettings = () => {
   setUserName(newUserName.value)
-  setFocusDuration(focusDurationMinu.value)
-  setRestDuration(restDurationMinu.value)
+  setFocusDuration(newFocusDurationMinu.value)
+  setRestDuration(newRestDurationMinu.value)
+  setNotificationInterval(newNotificationIntervalMinu.value)
 
   closeWindow()
 }

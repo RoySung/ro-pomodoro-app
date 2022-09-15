@@ -74,13 +74,20 @@ const recordsCount = computed(() => records.value.length)
 
 const isOverTime = computed(() => {
   const durationSec = appState.value.isFocusState ? ms2sec(focusDurationMS.value) : ms2sec(restDurationMS.value)
-  const isOver = currentTimeGap.value > durationSec
+  const isOver = currentTimeGap.value >= durationSec
   return isOver
 })
-const countDownTimeStr = computed(() => {
+
+const countDownTimeSec = computed(() => {
   const { isReadyState, isFocusState } = appState.value
   const durationSec = isFocusState ? ms2sec(focusDurationMS.value) : ms2sec(restDurationMS.value)
   const countDownTime = isReadyState ? 0 : Math.abs(durationSec - currentTimeGap.value)
+
+  return countDownTime
+})
+const countDownTimeStr = computed(() => {
+  const { isReadyState } = appState.value
+  const countDownTime = countDownTimeSec.value
   const isOver = isReadyState ? false : isOverTime.value
   const sec = padStart(String(countDownTime % 60), 2, '0')
   const minu = padStart(String(Math.floor(countDownTime / 60)), 2, '0')
@@ -190,6 +197,7 @@ export const useCountdownModel = () => {
     records,
     recordsCount,
     isOverTime,
+    countDownTimeSec,
     countDownTimeStr,
     durationTimeStr,
     startFocus,

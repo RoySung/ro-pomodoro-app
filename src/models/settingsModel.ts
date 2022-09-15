@@ -3,6 +3,7 @@ import { minu2ms } from '~/utils/time'
 const userName = useStorage('user-name', 'Guest')
 const focusDurationMSFromStorage = useStorage('focus-duration', minu2ms(30))
 const restDurationMSFromStorage = useStorage('rest-duration', minu2ms(5))
+const notificationIntervalMS = useStorage('notification-interval', minu2ms(1))
 
 const getDurations = (isDev = false) => {
   return {
@@ -21,14 +22,20 @@ const setRestDuration = (minu: number) => {
   restDurationMSFromStorage.value = minu2ms(minu)
 }
 
+const setNotificationInterval = (min: number) => {
+  notificationIntervalMS.value = minu2ms(min)
+}
+
 export const useSettingsModel = () => {
   const { focusDurationMS, restDurationMS } = getDurations(false)
   return {
     userName,
     focusDurationMS,
     restDurationMS,
+    notificationIntervalMS,
     setUserName,
     setFocusDuration,
     setRestDuration,
+    setNotificationInterval,
   }
 }

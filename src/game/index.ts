@@ -159,7 +159,6 @@ export class MainScene extends Phaser.Scene {
     this.createEmotions()
 
     this.registerEvents()
-    eventsCenter.emit(Events.Idle)
   }
 
   createBackground() {
