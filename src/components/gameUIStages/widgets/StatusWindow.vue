@@ -1,7 +1,7 @@
 <template>
   <WindowLayout :title="userName">
     <template #content>
-      <div class="flex items-center text-size-[8px] min-h-[25px] p-2">
+      <div class="flex items-center text-size-xs min-h-[25px] p-2">
         <span v-if="!appState.isRestState">Focus Time.</span>
         <span v-else>Rest Time.</span>
         <span class="ml-1" v-text="timeStr"></span>

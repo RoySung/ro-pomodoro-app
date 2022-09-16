@@ -17,7 +17,7 @@ const motions = useMotions()
 
 const isLoaded = ref(false)
 const progressPercent = ref(0)
-const progressPercentText = computed(() => `"${progressPercent.value * 100}%"`)
+const progressPercentText = computed(() => `"${Math.floor(progressPercent.value * 100)}%"`)
 const game = ref() as Ref<Game>
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 const watch = async() => {

@@ -478,8 +478,8 @@ export const createGame = (onProgressCB: (value: number) => void, onCompleteCB: 
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: 'trip-pomodoro-canvas-wrap',
-    width: 380,
-    height: 760,
+    width: 360,
+    height: 720,
     callbacks: {
       postBoot(game: Phaser.Game) {
         const scene = game.scene.getScene('Game')
