@@ -10,7 +10,7 @@
       <button class="window-ball-btn ml-auto">
       </button>
     </div>
-    <div class="window__content relative">
+    <div class="window__content relative overflow-hidden">
       <div class="relative">
         <slot name="content"></slot>
       </div>

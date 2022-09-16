@@ -2,6 +2,7 @@
 import { Ref } from 'vue'
 import { delay } from 'lodash-es'
 import IconSettings from 'virtual:vite-icons/ic/baseline-settings'
+import { useMotions } from '@vueuse/motion'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
 import RestStage from '~/components/gameUIStages/RestStage.vue'
@@ -12,6 +13,11 @@ import { eventsCenter as gameEventCenter, Events as GameEvent } from '~/game/eve
 import { useCountdownModel, Events } from '~/models/countdownModel'
 import SettingsWindow from '~/components/gameUIStages/widgets/SettingsWindow.vue'
 
+const motions = useMotions()
+
+const isLoaded = ref(false)
+const progressPercent = ref(0)
+const progressPercentText = computed(() => `"${progressPercent.value * 100}%"`)
 const game = ref() as Ref<Game>
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 const watch = async() => {
@@ -56,12 +62,20 @@ const stageComponent = computed(() => {
 })
 
 onMounted(async() => {
-  const newGame = await createGame()
+  const onProgress = (value: number) => {
+    progressPercent.value = value
+    if (value === 1) delay(() => isLoaded.value = true, 1000)
+  }
+
+  const onComplete = () => {
+    const { isFocusState, isRestState, isFinishState } = appState.value
+    if (isFocusState) emitter.emit(Events.StartFocus)
+    else if (isRestState) emitter.emit(Events.StartRest)
+    else if (isFinishState) emitter.emit(Events.FinishCycle)
+  }
+
+  const newGame = createGame(onProgress, onComplete)
   game.value = newGame
-  const { isFocusState, isRestState, isFinishState } = appState.value
-  if (isFocusState) emitter.emit(Events.StartFocus)
-  else if (isRestState) emitter.emit(Events.StartRest)
-  else if (isFinishState) emitter.emit(Events.FinishCycle)
 })
 
 </script>
@@ -81,9 +95,62 @@ onMounted(async() => {
       </r-button>
       <SettingsWindow v-model:isShow="isShowSettings" class="absolute top-0 left-0 w-full h-full" />
     </div>
+    <transition
+      :css="false"
+      @leave="(el, done) => motions['barrier'].leave(done)"
+    >
+      <div
+        v-if="!isLoaded"
+        v-motion="'barrier'"
+        :initial="{
+          opacity: 1,
+          scale: 1,
+        }"
+        :leave="{
+          opacity: 0,
+          scale: 3,
+          transition: {
+            scale: {
+              duration: 500,
+              delay: 100,
+            },
+            duration: 500,
+            ease: 'easeOut',
+          },
+        }"
+        class="trip-pomodoro-content__barrier absolute h-full w-full bg-black flex justify-center items-center"
+      >
+        <div class="progress-bar"></div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <style lang="scss">
+  .progress-bar {
+    width: 80%;
+    height: 30px;
+    background: gray;
+    position: relative;
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: white;
+      width: calc(v-bind(progressPercent)*100%);
+      height: 100%;
+      transition: width 0.8s ease-out;
+    }
+    &:after {
+      @apply text-white;
+      content: v-bind(progressPercentText);
+      display: block;
+      position: absolute;
+      top: 30px;
+      left: 0;
+    }
+  }
 
 </style>

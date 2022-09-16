@@ -474,26 +474,20 @@ export class Game extends Phaser.Game {
   }
 }
 
-export const createGame = (): Promise<Game> => {
-  return new Promise((resolve) => {
-    const config: Phaser.Types.Core.GameConfig = {
-      type: Phaser.AUTO,
-      parent: 'trip-pomodoro-canvas-wrap',
-      width: 380,
-      height: 760,
-      callbacks: {
-        postBoot(game: Phaser.Game) {
-          const scene = game.scene.getScene('Game')
-          // scene.load.on('progress', (value) => {
-          //   console.log('Loading Progress: ', value)
-          // })
-          scene.load.once('complete', () => {
-            resolve(game)
-          })
-        },
+export const createGame = (onProgressCB: (value: number) => void, onCompleteCB: () => void): Game => {
+  const config: Phaser.Types.Core.GameConfig = {
+    type: Phaser.AUTO,
+    parent: 'trip-pomodoro-canvas-wrap',
+    width: 380,
+    height: 760,
+    callbacks: {
+      postBoot(game: Phaser.Game) {
+        const scene = game.scene.getScene('Game')
+        scene.load.on('progress', onProgressCB)
+        scene.load.once('complete', onCompleteCB)
       },
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const game = new Game(config)
-  })
+    },
+  }
+  const game = new Game(config)
+  return game
 }
