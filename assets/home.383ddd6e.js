@@ -1,1 +1,0 @@
-import{r,o as a,g as t,f as e}from"./vendor.0d34a853.js";const s={},o={class:"py-0 md:py-10 flex h-full  text-gray-700 dark:text-gray-200"};s.render=function(s,n){const d=r("router-view");return a(),t("main",o,[e(d)])};export{s as default};
