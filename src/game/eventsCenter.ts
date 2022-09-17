@@ -7,6 +7,13 @@ export enum Events {
   Eat = 'eat',
   StartRest = 'start-rest',
   FinishRest = 'finish-rest',
+  SettingSound = 'setting-sound'
+}
+type EventType = {
+  [key in Events]: unknown
 }
 
-export const eventsCenter = mitt()
+type SettingSoundEventType = {
+  [Events.SettingSound]: boolean
+}
+export const eventsCenter = mitt<EventType&SettingSoundEventType>()

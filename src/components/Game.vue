@@ -11,6 +11,7 @@ import RButton from '~/components/Button.vue'
 import { createGame, MainScene, Game } from '~/game'
 import { eventsCenter as gameEventCenter, Events as GameEvent } from '~/game/eventsCenter'
 import { useCountdownModel, Events } from '~/models/countdownModel'
+import { useSettingsModel } from '~/models/settingsModel'
 import SettingsWindow from '~/components/gameUIStages/widgets/SettingsWindow.vue'
 
 const motions = useMotions()
@@ -20,12 +21,11 @@ const progressPercent = ref(0)
 const progressPercentText = computed(() => `"${Math.floor(progressPercent.value * 100)}%"`)
 const game = ref() as Ref<Game>
 const getMainScene = () => game.value.scene.getScene('Game') as MainScene
-const watch = async() => {
-}
 
 const isShowSettings = ref(false)
 const toggleSettings = () => isShowSettings.value = !isShowSettings.value
 
+const { isMuted } = useSettingsModel()
 const {
   appState,
   emitter,
@@ -72,6 +72,10 @@ onMounted(async() => {
     if (isFocusState) emitter.emit(Events.StartFocus)
     else if (isRestState) emitter.emit(Events.StartRest)
     else if (isFinishState) emitter.emit(Events.FinishCycle)
+
+    watch(isMuted, (newIsMuted: boolean) => {
+      gameEventCenter.emit(GameEvent.SettingSound, newIsMuted)
+    }, { immediate: true })
   }
 
   const newGame = createGame(onProgress, onComplete)

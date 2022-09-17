@@ -53,6 +53,32 @@
               placeholder="Minute"
             >
           </div>
+          <div class="nes-field mb-4">
+            <span>Muted: </span>
+            <span>
+              <label>
+                <input
+                  v-model="newIsMuted"
+                  type="radio"
+                  class="nes-radio"
+                  name="answer"
+                  :value="false"
+                />
+                <span>No</span>
+              </label>
+              <label>
+                <input
+                  v-model="newIsMuted"
+                  type="radio"
+                  class="nes-radio"
+                  name="answer"
+                  :value="true"
+                />
+                <span>Yes</span>
+              </label>
+
+            </span>
+          </div>
         </div>
       </template>
       <template #footer>
@@ -89,16 +115,19 @@ const {
   focusDurationMS,
   restDurationMS,
   notificationIntervalMS,
+  isMuted,
   setUserName,
   setFocusDuration,
   setRestDuration,
   setNotificationInterval,
+  setIsMuted,
 } = useSettingsModel()
 
 const newUserName = ref('')
 const newFocusDurationMinu = ref(0)
 const newRestDurationMinu = ref(0)
 const newNotificationIntervalMinu = ref(0)
+const newIsMuted = ref(false)
 
 const isEditedName = computed(() => newUserName.value !== userName.value)
 const isEditedFocusDur = computed(() => newFocusDurationMinu.value !== ms2minu(focusDurationMS.value))
@@ -110,6 +139,7 @@ const setupValues = () => {
   newRestDurationMinu.value = ms2minu(restDurationMS.value)
   newNotificationIntervalMinu.value = ms2minu(notificationIntervalMS.value)
   newUserName.value = userName.value
+  newIsMuted.value = isMuted.value
 }
 
 const saveSettings = () => {
@@ -117,6 +147,7 @@ const saveSettings = () => {
   setFocusDuration(newFocusDurationMinu.value)
   setRestDuration(newRestDurationMinu.value)
   setNotificationInterval(newNotificationIntervalMinu.value)
+  setIsMuted(newIsMuted.value)
 
   closeWindow()
 }

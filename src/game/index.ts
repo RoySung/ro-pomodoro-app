@@ -14,6 +14,12 @@ import emotionHeartSprite from '/game/emotions/emotion-heart-sprite.png'
 import emotionFindSprite from '/game/emotions/emotion-find-sprite.png'
 import bg0Img from '/game/bg-0.png'
 
+import bg0Music from '/music/bg-0.mp3'
+
+enum Music {
+  BG0 = 'background-music-0'
+}
+
 enum PoringRole {
   Idle = 'poring-idle',
   Walk = 'poring-walk',
@@ -67,6 +73,7 @@ const getPosAdjust = (key: Items | Emotions) => {
 
 export class MainScene extends Phaser.Scene {
   bg?: Phaser.GameObjects.TileSprite
+  bgMusic?: Phaser.Sound.BaseSound
   mainRole?: Phaser.GameObjects.Sprite
   mainRoleMap: Map<PoringRole, Phaser.GameObjects.Sprite>
   itemMap: Map<Items, Phaser.GameObjects.Image | Phaser.GameObjects.Sprite>
@@ -87,10 +94,15 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload() {
+    this.preloadMusic()
     this.preloadBackground()
     this.preloadMainCharacter()
     this.preloadItems()
     this.preloadEmotions()
+  }
+
+  preloadMusic() {
+    this.load.audio(Music.BG0, [bg0Music])
   }
 
   preloadBackground() {
@@ -150,9 +162,14 @@ export class MainScene extends Phaser.Scene {
       this.isRest = false
       delay(() => eventsCenter.emit(Events.Idle), 4000)
     })
+
+    eventsCenter.on(Events.SettingSound, (isMuted) => {
+      this.sound.mute = isMuted
+    })
   }
 
   create() {
+    this.createBackgroundMusic()
     this.createBackground()
     this.createMainCharacter()
     this.createItems()
@@ -160,6 +177,16 @@ export class MainScene extends Phaser.Scene {
 
     this.doIdle()
     this.registerEvents()
+  }
+
+  createBackgroundMusic() {
+    const music = this.sound.add(Music.BG0, {
+      loop: true,
+      volume: 0.5,
+    })
+    this.bgMusic = music
+    music.play()
+    this.sound.pauseOnBlur = false
   }
 
   createBackground() {
