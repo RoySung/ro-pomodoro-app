@@ -192,7 +192,7 @@ export class MainScene extends Phaser.Scene {
   createBackground() {
     const { width, height } = this.game.canvas
     this.add.rectangle(0, 0, width, height, 0x6B7FAF).setOrigin(0, 0)
-    const tileWHRate = 1228 / 800
+    const tileWHRate = 1228 / height
     const tileWidth = width * tileWHRate
     this.bg = this.add.tileSprite(0, 0, tileWidth, height, 'bg-0')
     this.bg.setOrigin(0, 0)
