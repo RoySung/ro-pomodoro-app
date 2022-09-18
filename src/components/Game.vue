@@ -85,8 +85,8 @@ onMounted(async() => {
 </script>
 
 <template>
-  <div class="trip-pomodoro-content flex justify-center self-center relative w-[fit-content] mx-auto">
-    <div id="trip-pomodoro-canvas-wrap">
+  <div class="ro-pomodoro-content flex justify-center self-center relative w-[fit-content] mx-auto">
+    <div id="ro-pomodoro-canvas-wrap">
     </div>
     <div class="stage-wrap absolute top-0 left-0 mr-auto w-full h-full">
       <component :is="stageComponent"></component>
@@ -122,7 +122,7 @@ onMounted(async() => {
             ease: 'easeOut',
           },
         }"
-        class="trip-pomodoro-content__barrier absolute h-full w-full bg-black flex justify-center items-center"
+        class="ro-pomodoro-content__barrier absolute h-full w-full bg-black flex justify-center items-center"
       >
         <div class="progress-bar"></div>
       </div>

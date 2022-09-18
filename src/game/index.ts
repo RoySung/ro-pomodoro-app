@@ -504,7 +504,7 @@ export class Game extends Phaser.Game {
 export const createGame = (onProgressCB: (value: number) => void, onCompleteCB: () => void): Game => {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    parent: 'trip-pomodoro-canvas-wrap',
+    parent: 'ro-pomodoro-canvas-wrap',
     width: 360,
     height: 720,
     callbacks: {
