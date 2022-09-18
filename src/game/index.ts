@@ -74,6 +74,7 @@ const getPosAdjust = (key: Items | Emotions) => {
 export class MainScene extends Phaser.Scene {
   bg?: Phaser.GameObjects.TileSprite
   bgMusic?: Phaser.Sound.BaseSound
+  bgMovingSpeed = 2
   mainRole?: Phaser.GameObjects.Sprite
   mainRoleMap: Map<PoringRole, Phaser.GameObjects.Sprite>
   itemMap: Map<Items, Phaser.GameObjects.Image | Phaser.GameObjects.Sprite>
@@ -488,7 +489,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.bg && this.isWalking) this.bg.tilePositionX += 3
+    if (this.bg && this.isWalking) this.bg.tilePositionX += this.bgMovingSpeed
     if (this.isIdling && this.isRest) this.doRest()
   }
 }
