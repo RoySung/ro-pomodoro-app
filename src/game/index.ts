@@ -313,7 +313,7 @@ export class MainScene extends Phaser.Scene {
     const createMVP = () => {
       this.anims.create({
         key: Items.MVP,
-        frames: this.anims.generateFrameNumbers(Items.MVP, { start: 0, end: 50 }),
+        frames: this.anims.generateFrameNumbers(Items.MVP, { start: 0, end: 8 }),
         frameRate: 20,
         repeat: 0,
       })
@@ -380,7 +380,7 @@ export class MainScene extends Phaser.Scene {
     if (mvp instanceof Phaser.GameObjects.Sprite) {
       mvp.setVisible(true)
       mvp.play(Items.MVP, true).once(ANIMATION_COMPLETE, () => {
-        mvp.setVisible(false)
+        delay(() => mvp.setVisible(false), 2500)
       })
     }
   }
