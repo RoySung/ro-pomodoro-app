@@ -5,6 +5,7 @@ const focusDurationMSFromStorage = useStorage('focus-duration', minu2ms(30))
 const restDurationMSFromStorage = useStorage('rest-duration', minu2ms(5))
 const notificationIntervalMS = useStorage('notification-interval', minu2ms(1))
 const isMuted = useStorage('is-muted', false)
+const isInit = useStorage('is-init', false)
 
 const getDurations = (isDev = false) => {
   return {
@@ -33,12 +34,14 @@ const setIsMuted = (value: boolean) => {
 
 export const useSettingsModel = () => {
   const { focusDurationMS, restDurationMS } = getDurations(false)
+
   return {
     userName,
     focusDurationMS,
     restDurationMS,
     notificationIntervalMS,
     isMuted,
+    isInit,
     setUserName,
     setFocusDuration,
     setRestDuration,

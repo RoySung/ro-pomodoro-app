@@ -13,7 +13,7 @@ watch([isOverTime, countDownTimeSec], ([newIsOverTime, newCountDownTimeSec]) => 
   const notificationIntervalSec = ms2sec(notificationIntervalMS.value)
   if (
     newIsOverTime
-    && (newCountDownTimeSec % notificationIntervalSec === 0)
+    && (newCountDownTimeSec % notificationIntervalSec < 5)
   )
     showRestTimeoutInfo()
 })

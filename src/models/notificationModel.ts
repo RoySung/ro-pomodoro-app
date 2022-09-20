@@ -11,8 +11,8 @@ const showFocusTimeoutInfo = () => {
     body: 'You need to take a break. 😪😪',
     dir: 'auto',
     lang: 'en',
-    renotify: true,
-    tag: 'notify-timeout',
+    renotify: false,
+    tag: `notify-timeout-${Date.now()}`,
   })
 
   if (isSupported) show()
@@ -25,11 +25,11 @@ const showRestTimeoutInfo = () => {
   } = useWebNotification({
     title: 'Time Out!',
     icon,
-    body: 'Keep going to focus',
+    body: 'Keep going to focus 🚀🚀',
     dir: 'auto',
     lang: 'en',
-    renotify: true,
-    tag: 'notify-timeout',
+    renotify: false,
+    tag: `notify-timeout-${Date.now()}`,
   })
 
   if (isSupported) show()

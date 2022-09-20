@@ -25,7 +25,7 @@ const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 const isShowSettings = ref(false)
 const toggleSettings = () => isShowSettings.value = !isShowSettings.value
 
-const { isMuted } = useSettingsModel()
+const { isMuted, isInit } = useSettingsModel()
 const {
   appState,
   emitter,
@@ -76,6 +76,11 @@ onMounted(async() => {
     watch(isMuted, (newIsMuted: boolean) => {
       gameEventCenter.emit(GameEvent.SettingSound, newIsMuted)
     }, { immediate: true })
+
+    if (!isInit.value) {
+      delay(() => isShowSettings.value = true, 800)
+      isInit.value = true
+    }
   }
 
   const newGame = createGame(onProgress, onComplete)
