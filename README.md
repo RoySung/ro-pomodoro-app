@@ -1,7 +1,9 @@
 # Ro Pomodoro App
 
+![screenshot](https://github.com/RoySung/ro-pomodoro-app/blob/master/screenshot.gif)
+
 A web appliaction of Pomodoro Timer.
-It can help you work with the balance way that can avoid burnout.
+It can help you work with the balance way that can avoid burnout 😌😌.
 
 Live Link: <https://roysung.github.io/ro-pomodoro-app/>
 
