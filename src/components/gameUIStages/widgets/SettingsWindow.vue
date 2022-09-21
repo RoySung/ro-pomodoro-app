@@ -1,7 +1,8 @@
 <template>
-  <div
+  <form
     v-if="isShow"
     class="settings-window overflow-hidden"
+    @submit.prevent="saveSettings"
   >
     <div class="absolute top-0 left-0  barrier w-full h-full bg-gray-400 opacity-60"></div>
     <transition
@@ -49,9 +50,11 @@
                 id="focus_duration_field"
                 v-model="newFocusDurationMinu"
                 type="number"
+                min="1"
                 :class="{
                   'nes-input': true,
-                  'is-success': isEditedFocusDur
+                  'is-success': isEditedFocusDur,
+                  'is-error': !validateNumber(newFocusDurationMinu)
                 }"
                 placeholder="Minute"
               >
@@ -62,9 +65,11 @@
                 id="rest_duration_field"
                 v-model="newRestDurationMinu"
                 type="number"
+                min="1"
                 :class="{
                   'nes-input': true,
-                  'is-success': isEditedRestDur
+                  'is-success': isEditedRestDur,
+                  'is-error': !validateNumber(newRestDurationMinu)
                 }"
                 placeholder="Minute"
               >
@@ -75,9 +80,11 @@
                 id="rest_duration_field"
                 v-model="newNotificationIntervalMinu"
                 type="number"
+                min="1"
                 :class="{
                   'nes-input': true,
-                  'is-success': isEditedNotifInterval
+                  'is-success': isEditedNotifInterval,
+                  'is-error': !validateNumber(newNotificationIntervalMinu)
                 }"
                 placeholder="Minute"
               >
@@ -112,7 +119,7 @@
         </template>
         <template #footer>
           <div class="text-black text-xs py-2 px-3 border-[#c5c5c5] border-t-1 flex justify-end">
-            <r-button @click="saveSettings">
+            <r-button type="submit">
               Save
             </r-button>
             <r-button class="ml-2" @click="cancel">
@@ -122,7 +129,7 @@
         </template>
       </WindowLayout>
     </transition>
-  </div>
+  </form>
 </template>
 
 <script lang="ts" setup>
@@ -190,13 +197,17 @@ const cancel = () => {
   closeWindow()
 }
 
+const validateNumber = (n: number) => {
+  return n > 0
+}
+
 onMounted(() => {
   setupValues()
 })
 
 const windowRef = ref(null)
 onClickOutside(windowRef, () => {
-  closeWindow()
+  cancel()
 })
 
 </script>
