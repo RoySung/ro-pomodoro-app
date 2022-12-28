@@ -1,7 +1,17 @@
-import { padStart, cloneDeep } from 'lodash-es'
+import { padStart, cloneDeep, groupBy } from 'lodash-es'
+import dayjs from 'dayjs'
+import weekday from 'dayjs/plugin/weekday'
 import mitt from 'mitt'
+import en from 'dayjs/locale/en'
 import { useSettingsModel } from '~/models/settingsModel'
 import { ms2sec } from '~/utils/time'
+
+// setting dayjs
+dayjs.locale({
+  ...en,
+  weekStart: 1,
+})
+dayjs.extend(weekday)
 
 interface AppState {
   name: string
@@ -71,6 +81,24 @@ const currentRecord = useStorage('current-record', cloneDeep(defaultRecord))
 const records = useStorage('records', [] as Record[])
 
 const recordsCount = computed(() => records.value.length)
+const getDateStr = (date?: string) => dayjs(date).format('YYYY/MM/DD')
+
+const recordsByDay = computed(() => {
+  return groupBy(records.value, (record: Record) => {
+    return getDateStr(record.focus.startTime)
+  })
+})
+const currentRecordsByToday = computed(() => {
+  return records.value.filter((record: Record) => getDateStr(record.focus.startTime) === getDateStr())
+})
+const currentRecordsByWeek = computed(() => {
+  const now = dayjs()
+  return records.value.filter((record: Record) => dayjs(record.focus.startTime).isSame(now, 'week'))
+})
+const currentRecordsByMonth = computed(() => {
+  const now = dayjs()
+  return records.value.filter((record: Record) => dayjs(record.focus.startTime).isSame(now, 'month'))
+})
 
 const isOverTime = computed(() => {
   const durationSec = appState.value.isFocusState ? ms2sec(focusDurationMS.value) : ms2sec(restDurationMS.value)
@@ -196,6 +224,10 @@ export const useCountdownModel = () => {
     currentRecord,
     records,
     recordsCount,
+    recordsByDay,
+    currentRecordsByToday,
+    currentRecordsByWeek,
+    currentRecordsByMonth,
     isOverTime,
     countDownTimeSec,
     countDownTimeStr,

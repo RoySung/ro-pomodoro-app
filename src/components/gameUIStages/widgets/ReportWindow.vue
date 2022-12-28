@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isShow" class="report-window overflow-hidden">
+  <div v-if="isShow" class="report-window overflow-hidden text-black">
     <div class="absolute top-0 left-0  barrier w-full h-full bg-gray-400 opacity-60" @click="closeWindow"></div>
     <transition
       :css="false"
@@ -28,7 +28,31 @@
         title="Report"
       >
         <template #content>
-          Report
+          <div class="report-content p-2">
+            <div class="counters-section flex justify-between p-2">
+              <div class="today-counter">
+                <p class="border-b-1 border-gray-500">
+                  Today
+                </p>
+                {{ currentRecordsByToday.length }}
+              </div>
+              <div class="week-counter">
+                <p class="border-b-1 border-gray-500">
+                  Week
+                </p>
+                {{ currentRecordsByWeek.length }}
+              </div>
+              <div class="month-counter">
+                <p class="border-b-1 border-gray-500">
+                  Month
+                </p>
+                {{ currentRecordsByMonth.length }}
+              </div>
+            </div>
+            <hr>
+            <div class="week-chart-section">
+            </div>
+          </div>
         </template>
       </WindowLayout>
     </transition>
@@ -37,6 +61,13 @@
 
 <script lang="ts" setup>
 import { useMotions } from '@vueuse/motion'
+import { useCountdownModel } from '~/models/countdownModel'
+
+const {
+  currentRecordsByToday,
+  currentRecordsByWeek,
+  currentRecordsByMonth,
+} = useCountdownModel()
 
 const motions = useMotions()
 defineProps({
