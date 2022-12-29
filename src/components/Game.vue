@@ -112,8 +112,8 @@ onMounted(async() => {
       >
         <SettingsIcon style="font-size: 1.5rem;" />
       </r-button>
-      <ReportWindow v-model:isShow="isShowReport" class="absolute top-0 left-0 w-full h-full"></ReportWindow>
-      <SettingsWindow v-model:isShow="isShowSettings" class="absolute top-0 left-0 w-full h-full" />
+      <ReportWindow v-if="isShowReport" v-model:isShow="isShowReport" class="absolute top-0 left-0 w-full h-full"></ReportWindow>
+      <SettingsWindow v-if="isShowSettings" v-model:isShow="isShowSettings" class="absolute top-0 left-0 w-full h-full" />
     </div>
     <transition
       :css="false"

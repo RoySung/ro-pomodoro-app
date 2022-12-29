@@ -1,17 +1,8 @@
 import { padStart, cloneDeep, groupBy } from 'lodash-es'
-import dayjs from 'dayjs'
-import weekday from 'dayjs/plugin/weekday'
 import mitt from 'mitt'
-import en from 'dayjs/locale/en'
 import { useSettingsModel } from '~/models/settingsModel'
 import { ms2sec } from '~/utils/time'
-
-// setting dayjs
-dayjs.locale({
-  ...en,
-  weekStart: 1,
-})
-dayjs.extend(weekday)
+import { dayjs } from '~/utils/dayjs'
 
 interface AppState {
   name: string
@@ -21,7 +12,7 @@ interface AppState {
   isFinishState?: boolean
 }
 
-interface Record {
+export interface DataRecord {
   focus: {
     startTime: string
     endTime: string
@@ -63,7 +54,7 @@ const finishState: AppState = {
   isFinishState: true,
 }
 
-const defaultRecord: Record = {
+const defaultRecord: DataRecord = {
   focus: {
     startTime: '',
     endTime: '',
@@ -78,26 +69,37 @@ const appState = useStorage('app-state', readyState)
 const startTime = useStorage('start-time', new Date())
 const currentTimeGap = useStorage('current-time-gap', 0)
 const currentRecord = useStorage('current-record', cloneDeep(defaultRecord))
-const records = useStorage('records', [] as Record[])
+const records = useStorage('records', [] as DataRecord[])
 
 const recordsCount = computed(() => records.value.length)
+const now = ref(dayjs())
+const firstDay = ref(dayjs().weekday(0))
+const changeToLastWeek = () => {
+  firstDay.value = firstDay.value.weekday(-7)
+}
+const changeToNextWeek = () => {
+  firstDay.value = firstDay.value.weekday(7)
+}
 const getDateStr = (date?: string) => dayjs(date).format('YYYY/MM/DD')
-
-const recordsByDay = computed(() => {
-  return groupBy(records.value, (record: Record) => {
+const groupRecordsByDay = (records: DataRecord[]) => {
+  return groupBy(records, (record: DataRecord) => {
     return getDateStr(record.focus.startTime)
   })
+}
+const recordsByDay = computed(() => {
+  return groupRecordsByDay(records.value)
+})
+const recordsByWeek = computed(() => {
+  return records.value.filter((record: DataRecord) => dayjs(record.focus.startTime).isSame(firstDay.value, 'week'))
 })
 const currentRecordsByToday = computed(() => {
-  return records.value.filter((record: Record) => getDateStr(record.focus.startTime) === getDateStr())
+  return records.value.filter((record: DataRecord) => getDateStr(record.focus.startTime) === getDateStr())
 })
 const currentRecordsByWeek = computed(() => {
-  const now = dayjs()
-  return records.value.filter((record: Record) => dayjs(record.focus.startTime).isSame(now, 'week'))
+  return records.value.filter((record: DataRecord) => dayjs(record.focus.startTime).isSame(now.value, 'week'))
 })
 const currentRecordsByMonth = computed(() => {
-  const now = dayjs()
-  return records.value.filter((record: Record) => dayjs(record.focus.startTime).isSame(now, 'month'))
+  return records.value.filter((record: DataRecord) => dayjs(record.focus.startTime).isSame(now.value, 'month'))
 })
 
 const isOverTime = computed(() => {
@@ -147,8 +149,8 @@ const { resume, pause } = useIntervalFn(() => {
 }, 500, { immediate: false })
 
 const setStartTime = (date: Date) => startTime.value = date
-const setCurrentRecord = (record: Record) => currentRecord.value = record
-const saveRecord = (record: Record) => {
+const setCurrentRecord = (record: DataRecord) => currentRecord.value = record
+const saveRecord = (record: DataRecord) => {
   records.value.push(record)
 }
 
@@ -214,17 +216,20 @@ const finishFocus = () => {
 
 export const useCountdownModel = () => {
   if (appState.value.isFocusState || appState.value.isRestState) resume()
+  firstDay.value = now.value.weekday(0)
 
   return {
     focusDurationMS,
     restDurationMS,
     appState,
     startTime,
+    firstDay,
     currentTimeGap,
     currentRecord,
     records,
     recordsCount,
     recordsByDay,
+    recordsByWeek,
     currentRecordsByToday,
     currentRecordsByWeek,
     currentRecordsByMonth,
@@ -239,6 +244,9 @@ export const useCountdownModel = () => {
     stopRest,
     finishRest,
     finishCycle,
+    groupRecordsByDay,
+    changeToLastWeek,
+    changeToNextWeek,
     emitter,
   }
 }
