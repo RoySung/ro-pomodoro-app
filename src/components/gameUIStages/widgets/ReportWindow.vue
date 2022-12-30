@@ -53,28 +53,28 @@
             <div class="week-chart-section p-2 text-center">
               <h3>Week Chart</h3>
               <div class="week-chart-context flex items-center">
-                <r-button class="w-[50px] h-[30px] m-1" @click="changeToLastWeek">
-                  <ArrowBackIcon class="transform scale-200" style="font-size: 1rem;"></ArrowBackIcon>
+                <r-button class="w-[25px] h-[30px] m-1" @click="changeToLastWeek">
+                  <ArrowBackIcon class="transform" style="font-size: 1rem;"></ArrowBackIcon>
                 </r-button>
                 <div class="chart-wrap w-[80%] h-[180px]">
                   <Bar :data="weekChartData" :options="weekChartOptions"></Bar>
                 </div>
-                <r-button class="w-[50px] h-[30px] m-1" @click="changeToNextWeek">
-                  <ArrowForwardIcon class="transform scale-200" style="font-size: 1rem;"></ArrowForwardIcon>
+                <r-button class="w-[25px] h-[30px] m-1" @click="changeToNextWeek">
+                  <ArrowForwardIcon class="transform" style="font-size: 1rem;"></ArrowForwardIcon>
                 </r-button>
               </div>
             </div>
             <div class="months-chart-section p-2 text-center">
               <h3>Months Chart</h3>
               <div class="months-chart-context flex items-center">
-                <r-button class="w-[50px] h-[30px] m-1" @click="changeToLastYear">
-                  <ArrowBackIcon class="transform scale-200" style="font-size: 1rem;"></ArrowBackIcon>
+                <r-button class="w-[25px] h-[30px] m-1" @click="changeToLastYear">
+                  <ArrowBackIcon style="font-size: 1rem;"></ArrowBackIcon>
                 </r-button>
                 <div class="chart-wrap w-[80%] h-[360px]">
                   <Bar :data="monthsChartData" :options="monthsChartOptions"></Bar>
                 </div>
-                <r-button class="w-[50px] h-[30px] m-1" @click="changeToNextYear">
-                  <ArrowForwardIcon class="transform scale-200" style="font-size: 1rem;"></ArrowForwardIcon>
+                <r-button class="w-[25px] h-[30px] m-1" @click="changeToNextYear">
+                  <ArrowForwardIcon style="font-size: 1rem;"></ArrowForwardIcon>
                 </r-button>
               </div>
             </div>

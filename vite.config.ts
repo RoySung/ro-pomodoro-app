@@ -5,7 +5,6 @@ import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts'
 import ViteIcons, { ViteIconsResolver } from 'vite-plugin-icons'
 import ViteComponents from 'vite-plugin-components'
-import Markdown from 'vite-plugin-md'
 import WindiCSS from 'vite-plugin-windicss'
 import AutoImport from 'unplugin-auto-import/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -75,24 +74,6 @@ export default defineConfig({
     // https://github.com/antfu/vite-plugin-windicss
     WindiCSS({
       safelist: markdownWrapperClasses,
-    }),
-
-    // https://github.com/antfu/vite-plugin-md
-    // Don't need this? Try vitesse-lite: https://github.com/antfu/vitesse-lite
-    Markdown({
-      wrapperClasses: markdownWrapperClasses,
-      headEnabled: true,
-      markdownItSetup(md) {
-        // https://prismjs.com/
-        md.use(Prism)
-        md.use(LinkAttributes, {
-          pattern: /^https?:\/\//,
-          attrs: {
-            target: '_blank',
-            rel: 'noopener',
-          },
-        })
-      },
     }),
 
     // https://github.com/antfu/vite-plugin-pwa
