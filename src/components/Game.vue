@@ -101,7 +101,7 @@ onMounted(async() => {
       <component :is="stageComponent"></component>
       <StatusWindow class="absolute top-0 left-0 w-full text-black"></StatusWindow>
       <r-button
-        class="!absolute bottom-[7px] right-[52px] text-gray-700 w-[50px] h-[50px]"
+        class="!absolute bottom-[7px] right-[56px] text-gray-700 w-[50px] h-[50px]"
         @click="toggleReport"
       >
         <ChartIcon style="font-size: 1.5rem;" />

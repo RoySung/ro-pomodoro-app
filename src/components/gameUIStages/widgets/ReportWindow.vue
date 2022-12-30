@@ -24,11 +24,11 @@
           opacity: 0,
           scale: 0,
         }"
-        class="w-4/5 absolute top-[20%] left-[10%]"
+        class="w-4/5 absolute top-[15%] left-[10%]"
         title="Report"
       >
         <template #content>
-          <div class="report-content p-2">
+          <div class="report-content p-2 max-h-[520px] overflow-scroll">
             <div class="counters-section flex justify-between p-2">
               <div class="today-counter text-center">
                 <h3 class="border-b-1 border-gray-500">
@@ -50,16 +50,30 @@
               </div>
             </div>
             <hr>
-            <div class="week-chart-section p-2">
+            <div class="week-chart-section p-2 text-center">
               <h3>Week Chart</h3>
               <div class="week-chart-context flex items-center">
                 <r-button class="w-[50px] h-[30px] m-1" @click="changeToLastWeek">
                   <ArrowBackIcon class="transform scale-200" style="font-size: 1rem;"></ArrowBackIcon>
                 </r-button>
-                <div class="chart-wrap w-[80%]">
-                  <Bar :data="chartData" :options="chartOptions"></Bar>
+                <div class="chart-wrap w-[80%] h-[180px]">
+                  <Bar :data="weekChartData" :options="weekChartOptions"></Bar>
                 </div>
                 <r-button class="w-[50px] h-[30px] m-1" @click="changeToNextWeek">
+                  <ArrowForwardIcon class="transform scale-200" style="font-size: 1rem;"></ArrowForwardIcon>
+                </r-button>
+              </div>
+            </div>
+            <div class="months-chart-section p-2 text-center">
+              <h3>Months Chart</h3>
+              <div class="months-chart-context flex items-center">
+                <r-button class="w-[50px] h-[30px] m-1" @click="changeToLastYear">
+                  <ArrowBackIcon class="transform scale-200" style="font-size: 1rem;"></ArrowBackIcon>
+                </r-button>
+                <div class="chart-wrap w-[80%] h-[360px]">
+                  <Bar :data="monthsChartData" :options="monthsChartOptions"></Bar>
+                </div>
+                <r-button class="w-[50px] h-[30px] m-1" @click="changeToNextYear">
                   <ArrowForwardIcon class="transform scale-200" style="font-size: 1rem;"></ArrowForwardIcon>
                 </r-button>
               </div>
@@ -75,6 +89,7 @@
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
+  // eslint-disable-next-line import/named
   ChartOptions,
 } from 'chart.js'
 import { Bar } from 'vue-chartjs'
@@ -84,31 +99,42 @@ import { useMotions } from '@vueuse/motion'
 import RButton from '~/components/Button.vue'
 import { useCountdownModel } from '~/models/countdownModel'
 
+const motions = useMotions()
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const {
-  firstDay,
-  recordsByWeek,
+  weekFirstDay,
+  yearFirstDay,
+  recordsInWeek,
+  recordsInYear,
   currentRecordsByToday,
   currentRecordsByWeek,
   currentRecordsByMonth,
   groupRecordsByDay,
+  groupRecordsByMonth,
   changeToLastWeek,
   changeToNextWeek,
+  changeToLastYear,
+  changeToNextYear,
 } = useCountdownModel()
 
-let delayed = false
-const chartOptions = computed<ChartOptions>(() => {
+const delayed = {
+  week: false,
+  months: false,
+}
+const weekChartOptions = computed<ChartOptions>(() => {
+  const dateRangeStr = `${weekFirstDay.value.format('YYYY/MM/DD')}-${weekFirstDay.value.day(7).format('MM/DD')}`
   return {
     responsive: true,
     maintainAspectRatio: false,
     animation: {
       onComplete: () => {
-        delayed = true
+        delayed.week = true
       },
       delay: (context) => {
         let delay = 0
-        if (context.type === 'data' && context.mode === 'default' && !delayed)
+        if (context.type === 'data' && context.mode === 'default' && !delayed.week)
           delay = context.dataIndex * 300 + context.datasetIndex * 100
 
         return delay
@@ -118,7 +144,33 @@ const chartOptions = computed<ChartOptions>(() => {
     plugins: {
       title: {
         display: true,
-        text: `Total: ${recordsByWeek.value.length}`,
+        text: `${dateRangeStr} Total: ${recordsInWeek.value.length}`,
+      },
+    },
+  }
+})
+const monthsChartOptions = computed<ChartOptions>(() => {
+  return {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: {
+      onComplete: () => {
+        delayed.months = true
+      },
+      delay: (context) => {
+        let delay = 0
+        if (context.type === 'data' && context.mode === 'default' && !delayed.months)
+          delay = context.dataIndex * 300 + context.datasetIndex * 100
+
+        return delay
+      },
+      duration: 1500,
+    },
+    plugins: {
+      title: {
+        display: true,
+        text: `${yearFirstDay.value.format('YYYY')} Total: ${recordsInYear.value.length}`,
       },
     },
   }
@@ -137,9 +189,8 @@ const getChartData = (labels: string[], data: number[]) => {
   }
 }
 
-const chartData = computed(() => {
-  const recordsByDay = groupRecordsByDay(recordsByWeek.value)
-  const countArr = Object.values(recordsByDay).map(records => records.length)
+const weekChartData = computed(() => {
+  const recordsByDay = groupRecordsByDay(recordsInWeek.value)
   let labels = [
     'MO',
     'TU',
@@ -150,12 +201,43 @@ const chartData = computed(() => {
     'SU',
   ]
   labels = labels.map((_, index) => {
-    return firstDay.value.day(index + 1).format('MM/DD')
+    return weekFirstDay.value.day(index + 1).format('MM/DD')
+  })
+  const countArr = labels.map((_, index) => {
+    const dateStr = weekFirstDay.value.day(index + 1).format('YYYY/MM/DD')
+
+    return recordsByDay[dateStr]?.length || 0
   })
   return getChartData(labels, countArr)
 })
 
-const motions = useMotions()
+const monthsChartData = computed(() => {
+  const recordsGroupByMonth = groupRecordsByMonth(recordsInYear.value)
+  const labels = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  const countArr = labels.map((_, index) => {
+    const year = yearFirstDay.value.year()
+    const month = yearFirstDay.value.month(index).format('MM')
+    const monthStr = `${year}/${month}`
+
+    return recordsGroupByMonth[monthStr]?.length || 0
+  })
+
+  return getChartData(labels, countArr)
+})
+
 defineProps({
   isShow: {
     type: Boolean,

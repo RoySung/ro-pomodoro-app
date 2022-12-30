@@ -73,12 +73,19 @@ const records = useStorage('records', [] as DataRecord[])
 
 const recordsCount = computed(() => records.value.length)
 const now = ref(dayjs())
-const firstDay = ref(dayjs().weekday(0))
+const weekFirstDay = ref(dayjs().weekday(0))
+const yearFirstDay = ref(dayjs().dayOfYear(1))
 const changeToLastWeek = () => {
-  firstDay.value = firstDay.value.weekday(-7)
+  weekFirstDay.value = weekFirstDay.value.weekday(-7)
 }
 const changeToNextWeek = () => {
-  firstDay.value = firstDay.value.weekday(7)
+  weekFirstDay.value = weekFirstDay.value.weekday(7)
+}
+const changeToLastYear = () => {
+  yearFirstDay.value = yearFirstDay.value.year(yearFirstDay.value.year() - 1)
+}
+const changeToNextYear = () => {
+  yearFirstDay.value = yearFirstDay.value.year(yearFirstDay.value.year() + 1)
 }
 const getDateStr = (date?: string) => dayjs(date).format('YYYY/MM/DD')
 const groupRecordsByDay = (records: DataRecord[]) => {
@@ -86,11 +93,19 @@ const groupRecordsByDay = (records: DataRecord[]) => {
     return getDateStr(record.focus.startTime)
   })
 }
-const recordsByDay = computed(() => {
+const groupRecordsByMonth = (records: DataRecord[]) => {
+  return groupBy(records, (record: DataRecord) => {
+    return dayjs(record.focus.startTime).format('YYYY/MM')
+  })
+}
+const recordsGroupByDay = computed(() => {
   return groupRecordsByDay(records.value)
 })
-const recordsByWeek = computed(() => {
-  return records.value.filter((record: DataRecord) => dayjs(record.focus.startTime).isSame(firstDay.value, 'week'))
+const recordsInWeek = computed(() => {
+  return records.value.filter((record: DataRecord) => dayjs(record.focus.startTime).isSame(weekFirstDay.value, 'week'))
+})
+const recordsInYear = computed(() => {
+  return records.value.filter((record: DataRecord) => dayjs(record.focus.startTime).isSame(yearFirstDay.value, 'year'))
 })
 const currentRecordsByToday = computed(() => {
   return records.value.filter((record: DataRecord) => getDateStr(record.focus.startTime) === getDateStr())
@@ -216,20 +231,22 @@ const finishFocus = () => {
 
 export const useCountdownModel = () => {
   if (appState.value.isFocusState || appState.value.isRestState) resume()
-  firstDay.value = now.value.weekday(0)
+  weekFirstDay.value = now.value.weekday(0)
 
   return {
     focusDurationMS,
     restDurationMS,
     appState,
     startTime,
-    firstDay,
+    weekFirstDay,
+    yearFirstDay,
     currentTimeGap,
     currentRecord,
     records,
     recordsCount,
-    recordsByDay,
-    recordsByWeek,
+    recordsGroupByDay,
+    recordsInWeek,
+    recordsInYear,
     currentRecordsByToday,
     currentRecordsByWeek,
     currentRecordsByMonth,
@@ -245,8 +262,11 @@ export const useCountdownModel = () => {
     finishRest,
     finishCycle,
     groupRecordsByDay,
+    groupRecordsByMonth,
     changeToLastWeek,
     changeToNextWeek,
+    changeToLastYear,
+    changeToNextYear,
     emitter,
   }
 }
