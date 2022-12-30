@@ -1,0 +1,1 @@
+import{d as e,u as o,o as a,c as s,t as c,a as r,b as n}from"./index.245558d3.js";const l=e({__name:"[...all]",setup(u){const{t}=o();return(f,p)=>(a(),s("div",null,c(r(t)("not-found")),1))}});typeof n=="function"&&n(l);export{l as default};
