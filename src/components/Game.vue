@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Ref } from 'vue'
 import { delay } from 'lodash-es'
-import IconSettings from 'virtual:vite-icons/ic/baseline-settings'
+import SettingsIcon from 'virtual:vite-icons/ic/baseline-settings'
+import ChartIcon from 'virtual:vite-icons/ic/round-bar-chart'
 import { useMotions } from '@vueuse/motion'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'
@@ -24,6 +25,9 @@ const getMainScene = () => game.value.scene.getScene('Game') as MainScene
 
 const isShowSettings = ref(false)
 const toggleSettings = () => isShowSettings.value = !isShowSettings.value
+
+const isShowReport = ref(false)
+const toggleReport = () => isShowReport.value = !isShowReport.value
 
 const { isMuted, isInit } = useSettingsModel()
 const {
@@ -97,12 +101,19 @@ onMounted(async() => {
       <component :is="stageComponent"></component>
       <StatusWindow class="absolute top-0 left-0 w-full text-black"></StatusWindow>
       <r-button
+        class="!absolute bottom-[7px] right-[56px] text-gray-700 w-[50px] h-[50px]"
+        @click="toggleReport"
+      >
+        <ChartIcon style="font-size: 1.5rem;" />
+      </r-button>
+      <r-button
         class="!absolute bottom-[7px] right-[2px] text-gray-700 w-[50px] h-[50px]"
         @click="toggleSettings"
       >
-        <IconSettings style="font-size: 1.5rem;" />
+        <SettingsIcon style="font-size: 1.5rem;" />
       </r-button>
-      <SettingsWindow v-model:isShow="isShowSettings" class="absolute top-0 left-0 w-full h-full" />
+      <ReportWindow v-if="isShowReport" v-model:isShow="isShowReport" class="absolute top-0 left-0 w-full h-full"></ReportWindow>
+      <SettingsWindow v-if="isShowSettings" v-model:isShow="isShowSettings" class="absolute top-0 left-0 w-full h-full" />
     </div>
     <transition
       :css="false"

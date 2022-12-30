@@ -1,6 +1,5 @@
 <template>
   <form
-    v-if="isShow"
     class="settings-window overflow-hidden"
     @submit.prevent="saveSettings"
   >

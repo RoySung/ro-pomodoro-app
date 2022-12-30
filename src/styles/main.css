@@ -20,6 +20,16 @@ html.dark body {
   background: #121212 !important;  
 }
 
+/* For Webkit-based browsers (Chrome, Safari and Opera) */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 
 #nprogress {
   pointer-events: none;
@@ -77,4 +87,41 @@ button, a {
   0% {cursor: url('/cursor/click/cursor_click_0.png'), auto ;}
   50% {cursor: url('/cursor/click/cursor_click_1.png'), auto ;}
   100% {cursor: url('/cursor/click/cursor_click_2.png'), auto ;}
+}
+
+h1 {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+}
+h2 {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+}
+h3 {
+  font-size: 1rem; /* 16px */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+}
+p {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 0;
+  letter-spacing: 0;
+}
+span {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 400;
+  line-height: 0;
+  letter-spacing: 0;
+}
+caption {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 400;
+  line-height: 0;
+  letter-spacing: 0;
 }
