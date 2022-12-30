@@ -1,0 +1,1 @@
+import{h as t,o,c as r,g as c,r as n}from"./index.277d1887.js";const s={},a={class:"py-0 md:py-10 flex justify-center items-center h-full text-gray-700 dark:text-gray-200"};function _(m,f){const e=n("router-view");return o(),r("main",a,[c(e)])}const l=t(s,[["render",_]]);export{l as default};
