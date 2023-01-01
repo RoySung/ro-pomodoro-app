@@ -16,6 +16,9 @@ Live Link: <https://roysung.github.io/ro-pomodoro-app/>
   - Mute Music
 - Notification In Timeout (Only Web Browser)
 - Record The Cycle (Focus -> Rest)
+- Report
+  - Count records with the whole cycle by Today, Week, Month.
+  - Charts about the week and Months by the year.
 
 ## Technical Detail
 
@@ -24,6 +27,8 @@ Live Link: <https://roysung.github.io/ro-pomodoro-app/>
 - Phaser3
 - Windi CSS
 - Nec.css
+- Day.js
+- Chart.js
 
 ## Setup Project
 
