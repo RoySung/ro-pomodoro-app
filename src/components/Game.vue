@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Ref } from 'vue'
 import { delay } from 'lodash-es'
-import SettingsIcon from 'virtual:vite-icons/ic/baseline-settings'
-import ChartIcon from 'virtual:vite-icons/ic/round-bar-chart'
+import SettingsIcon from '~icons/ic/baseline-settings'
+import ChartIcon from '~icons/ic/round-bar-chart'
 import { useMotions } from '@vueuse/motion'
 import ReadyStage from '~/components/gameUIStages/ReadyStage.vue'
 import FocusStage from '~/components/gameUIStages/FocusStage.vue'

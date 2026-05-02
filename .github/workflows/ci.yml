@@ -14,21 +14,19 @@ jobs:
     concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
     env:
-      BASE_URL: '/ro-pomodoro-app/'
+      BASE_URL: "/ro-pomodoro-app/"
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 20
           cache: pnpm
 
       - name: Install And Build
         run: |
           pnpm install
           pnpm run build
-        
-      
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4

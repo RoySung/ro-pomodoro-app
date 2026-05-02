@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import IconPauseFilled from 'virtual:vite-icons/carbon/pause-filled'
+import IconPauseFilled from '~icons/carbon/pause-filled'
 import WindowLayout from '~/components/gameUIStages/widgets/WindowLayout.vue'
 import { useCountdownModel } from '~/models/countdownModel'
 import { useSettingsModel } from '~/models/settingsModel'

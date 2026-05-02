@@ -3,8 +3,9 @@ import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts'
-import ViteIcons, { ViteIconsResolver } from 'vite-plugin-icons'
-import ViteComponents from 'vite-plugin-components'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Components from 'unplugin-vue-components/vite'
 import WindiCSS from 'vite-plugin-windicss'
 import AutoImport from 'unplugin-auto-import/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -31,6 +32,7 @@ export default defineConfig({
     // https://github.com/hannoeru/vite-plugin-pages
     Pages({
       extensions: ['vue', 'md'],
+      exclude: ['**/README.md'],
     }),
 
     // https://github.com/JohnCampionJr/vite-plugin-vue-layouts
@@ -47,29 +49,29 @@ export default defineConfig({
       ],
     }),
 
-    // https://github.com/antfu/vite-plugin-components
-    ViteComponents({
+    // https://github.com/antfu/unplugin-vue-components
+    Components({
       // allow auto load markdown components under `./src/components/`
       extensions: ['vue', 'md'],
 
       // allow auto import and register components used in markdown
-      customLoaderMatcher: id => id.endsWith('.md'),
+      include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
 
       // generate `components.d.ts` for ts support with Volar
-      globalComponentsDeclaration: true,
+      dts: 'components.d.ts',
 
       // auto import icons
-      customComponentResolvers: [
-        // https://github.com/antfu/vite-plugin-icons
-        ViteIconsResolver({
-          componentPrefix: '',
+      resolvers: [
+        // https://github.com/antfu/unplugin-icons
+        IconsResolver({
+          prefix: '',
           // enabledCollections: ['carbon']
         }),
       ],
     }),
 
-    // https://github.com/antfu/vite-plugin-icons
-    ViteIcons(),
+    // https://github.com/antfu/unplugin-icons
+    Icons({ autoInstall: true }),
 
     // https://github.com/antfu/vite-plugin-windicss
     WindiCSS({

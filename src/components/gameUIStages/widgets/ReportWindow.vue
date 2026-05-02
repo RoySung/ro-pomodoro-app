@@ -93,8 +93,8 @@ import {
   ChartOptions,
 } from 'chart.js'
 import { Bar } from 'vue-chartjs'
-import ArrowBackIcon from 'virtual:vite-icons/ic/round-arrow-back-ios'
-import ArrowForwardIcon from 'virtual:vite-icons/ic/round-arrow-forward-ios'
+import ArrowBackIcon from '~icons/ic/round-arrow-back-ios'
+import ArrowForwardIcon from '~icons/ic/round-arrow-forward-ios'
 import { useMotions } from '@vueuse/motion'
 import RButton from '~/components/Button.vue'
 import { useCountdownModel } from '~/models/countdownModel'
