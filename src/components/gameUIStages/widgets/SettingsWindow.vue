@@ -89,29 +89,28 @@
               >
             </div>
             <div class="nes-field mb-4">
-              <span>Muted: </span>
+              <span>Sound</span>
               <span>
                 <label>
                   <input
                     v-model="newIsMuted"
                     type="radio"
                     class="nes-radio"
-                    name="answer"
+                    name="sound"
                     :value="false"
                   />
-                  <span>No</span>
+                  <span>On</span>
                 </label>
                 <label>
                   <input
                     v-model="newIsMuted"
                     type="radio"
                     class="nes-radio"
-                    name="answer"
+                    name="sound"
                     :value="true"
                   />
-                  <span>Yes</span>
+                  <span>Off</span>
                 </label>
-
               </span>
             </div>
           </div>
