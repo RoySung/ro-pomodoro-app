@@ -1,0 +1,10 @@
+{
+  "name": "widget-bridge",
+  "version": "1.0.0",
+  "description": "Native bridge for iOS widget state sync via shared UserDefaults",
+  "main": "index.ts",
+  "peerDependencies": {
+    "expo": "*",
+    "expo-modules-core": "*"
+  }
+}

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -19,6 +19,9 @@ import {
   type PomodoroSettings,
 } from './domain';
 
+const NOTIFICATION_KIND_TIME_OUT = 'timeOut';
+const NOTIFICATION_KIND_STILL_WAITING = 'stillWaiting';
+
 const cancelScheduled = async(ref: { current: string | null }) => {
   if (!ref.current)
     return;
@@ -30,6 +33,19 @@ const cancelScheduled = async(ref: { current: string | null }) => {
   }
 
   ref.current = null;
+};
+
+const dismissStillWaiting = async() => {
+  try {
+    const presented = await Notifications.getPresentedNotificationsAsync();
+    await Promise.all(
+      presented
+        .filter(n => n.request.content.data?.kind === NOTIFICATION_KIND_STILL_WAITING)
+        .map(n => Notifications.dismissNotificationAsync(n.request.identifier).catch(() => {})),
+    );
+  }
+  catch {
+  }
 };
 
 const ensureNotificationPermissions = async() => {
@@ -71,6 +87,25 @@ export const usePomodoroController = () => {
 
     const loadState = async() => {
       try {
+        // Cancel stale pomodoro notifications from a previous session.
+        // IDs live in refs that don't survive a process kill — enumerate and filter
+        // by data.kind to avoid touching unrelated apps' or system notifications.
+        if (Platform.OS !== 'web') {
+          try {
+            const pending = await Notifications.getAllScheduledNotificationsAsync();
+            await Promise.all(
+              pending
+                .filter((n) => {
+                  const kind = n.content.data?.kind;
+                  return kind === NOTIFICATION_KIND_TIME_OUT || kind === NOTIFICATION_KIND_STILL_WAITING;
+                })
+                .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})),
+            );
+          }
+          catch {
+          }
+        }
+
         const rawValue = await AsyncStorage.getItem(STORAGE_KEY);
         if (!isMounted)
           return;
@@ -114,6 +149,21 @@ export const usePomodoroController = () => {
     }, 1000);
 
     return () => clearInterval(intervalId);
+  }, []);
+
+  // When the app comes back to the foreground, dismiss only our own "Still waiting"
+  // notifications that accumulated while the app was backgrounded.
+  useEffect(() => {
+    if (Platform.OS === 'web')
+      return;
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        void dismissStillWaiting();
+      }
+    });
+
+    return () => subscription.remove();
   }, []);
 
   const timer = useMemo(() => getTimerSnapshot(state, nowMs), [state, nowMs]);
@@ -164,13 +214,19 @@ export const usePomodoroController = () => {
 
       const durationSeconds = getPhaseDurationSeconds(state.phase, state.settings);
       const elapsedSeconds = Math.max(0, Math.floor((Date.now() - new Date(state.phaseStartedAt).getTime()) / 1000));
-      const remainingSeconds = Math.max(durationSeconds - elapsedSeconds, 1);
+
+      // Already in overtime — "Time Out!" is no longer relevant; skip scheduling.
+      if (elapsedSeconds >= durationSeconds)
+        return;
+
+      const remainingSeconds = durationSeconds - elapsedSeconds;
 
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: 'Time Out!',
           body: getNotificationBody(state.phase),
           sound: state.settings.isMuted ? undefined : 'default',
+          data: { kind: NOTIFICATION_KIND_TIME_OUT },
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -179,7 +235,11 @@ export const usePomodoroController = () => {
       });
 
       if (cancelled) {
-        await Notifications.cancelScheduledNotificationAsync(notificationId);
+        try {
+          await Notifications.cancelScheduledNotificationAsync(notificationId);
+        }
+        catch {
+        }
         return;
       }
 
@@ -219,6 +279,7 @@ export const usePomodoroController = () => {
           title: 'Still waiting',
           body: getNotificationBody(state.phase),
           sound: state.settings.isMuted ? undefined : 'default',
+          data: { kind: NOTIFICATION_KIND_STILL_WAITING },
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -228,7 +289,11 @@ export const usePomodoroController = () => {
       });
 
       if (cancelled) {
-        await Notifications.cancelScheduledNotificationAsync(notificationId);
+        try {
+          await Notifications.cancelScheduledNotificationAsync(notificationId);
+        }
+        catch {
+        }
         return;
       }
 
@@ -253,8 +318,8 @@ export const usePomodoroController = () => {
     }));
   };
 
-  const startFocus = () => {
-    const nowIso = new Date().toISOString();
+  const startFocus = (startedAt?: string) => {
+    const nowIso = startedAt ?? new Date().toISOString();
 
     setState(currentState => ({
       ...currentState,
@@ -282,8 +347,8 @@ export const usePomodoroController = () => {
     }));
   };
 
-  const startRest = () => {
-    const nowIso = new Date().toISOString();
+  const startRest = (startedAt?: string) => {
+    const nowIso = startedAt ?? new Date().toISOString();
 
     setState((currentState) => {
       const currentFocusStart = currentState.currentRecord.focus.startTime || nowIso;

@@ -4,13 +4,19 @@ import { Stack } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 
+// Suppress "Still waiting" banners while the user is actively using the app –
+// they can already see the overtime state on screen.
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async (notification) => {
+    const kind = notification.request.content.data?.kind;
+    const isStillWaiting = kind === 'stillWaiting';
+    return {
+      shouldShowBanner: !isStillWaiting,
+      shouldShowList: true,
+      shouldPlaySound: !isStillWaiting,
+      shouldSetBadge: false,
+    };
+  },
 });
 
 export default function RootLayout() {

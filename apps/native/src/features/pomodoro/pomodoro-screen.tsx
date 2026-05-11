@@ -26,6 +26,8 @@ import { SpriteAnimation } from './sprite-animation';
 import { type ChartBarDatum } from './domain';
 import { useBackgroundMusic } from './use-background-music';
 import { usePomodoroController } from './use-pomodoro-controller';
+import { useWidgetActionHandler } from './use-widget-action-handler';
+import { useWidgetStateSync } from './use-widget-state-sync';
 
 const STAGE_RATIO = 360 / 720;
 
@@ -145,6 +147,16 @@ function ReportModal({
 
 export function PomodoroScreen() {
   const controller = usePomodoroController();
+  useWidgetStateSync(controller.ready ? controller.state : null);
+  useWidgetActionHandler(
+    {
+      startFocus: controller.startFocus,
+      stopFocus: controller.stopFocus,
+      startRest: controller.startRest,
+      finishRest: controller.finishRest,
+    },
+    controller.ready,
+  );
   const music = useBackgroundMusic({
     enabled: !controller.state.settings.isMuted,
     ready: controller.ready,

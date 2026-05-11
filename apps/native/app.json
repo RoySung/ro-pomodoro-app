@@ -8,7 +8,11 @@
     "scheme": "ro-pomodoro-native",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.roysung.roPomodoroNative",
+      "icon": "./assets/expo.icon",
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.roysung.roPomodoroNative"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,7 +40,8 @@
           }
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "./plugins/with-ios-widget"
     ],
     "experiments": {
       "typedRoutes": true,
