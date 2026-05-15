@@ -12,6 +12,9 @@ let nativeModule: {
   getPendingAction: () => Promise<string | null>;
   clearPendingAction: () => Promise<void>;
   getWidgetState: () => Promise<string | null>;
+  startLiveActivity: (json: string) => Promise<void>;
+  updateLiveActivity: (json: string) => Promise<void>;
+  endLiveActivity: () => Promise<void>;
 } | null = null;
 
 if (Platform.OS === 'ios') {
@@ -40,6 +43,24 @@ export const clearPendingAction = (): Promise<void> => {
   if (!nativeModule)
     return Promise.resolve();
   return nativeModule.clearPendingAction();
+};
+
+export const startLiveActivity = (state: WidgetState): Promise<void> => {
+  if (!nativeModule)
+    return Promise.resolve();
+  return nativeModule.startLiveActivity(JSON.stringify(state));
+};
+
+export const updateLiveActivity = (state: WidgetState): Promise<void> => {
+  if (!nativeModule)
+    return Promise.resolve();
+  return nativeModule.updateLiveActivity(JSON.stringify(state));
+};
+
+export const endLiveActivity = (): Promise<void> => {
+  if (!nativeModule)
+    return Promise.resolve();
+  return nativeModule.endLiveActivity();
 };
 
 export const getWidgetState = async (): Promise<WidgetState | null> => {

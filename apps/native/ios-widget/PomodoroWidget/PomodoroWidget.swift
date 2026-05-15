@@ -3,141 +3,7 @@ import SwiftUI
 import UserNotifications
 import WidgetKit
 
-// MARK: - Shared data model
-
-struct WidgetPomodoroState: Codable {
-  var phase: String
-  var phaseStartedAt: String?
-  var focusDurationMinutes: Int
-  var restDurationMinutes: Int
-
-  static let `default` = WidgetPomodoroState(
-    phase: "ready",
-    phaseStartedAt: nil,
-    focusDurationMinutes: 30,
-    restDurationMinutes: 5
-  )
-}
-
-private let appGroup = "group.com.roysung.roPomodoroNative"
-
-// Match JS's toISOString() format so timestamps written by either side compare equal.
-private let isoFormatter: ISO8601DateFormatter = {
-  let f = ISO8601DateFormatter()
-  f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-  return f
-}()
-
-private func formatISODate(_ date: Date) -> String {
-  isoFormatter.string(from: date)
-}
-
-private func parseISODate(_ string: String) -> Date? {
-  if let d = isoFormatter.date(from: string) { return d }
-  return ISO8601DateFormatter().date(from: string)
-}
-
-// Cancel only the pomodoro notifications we tagged via userInfo["kind"].
-// removeAllPendingNotificationRequests() would wipe unrelated notifications too.
-private func cancelPomodoroPendingNotifications() {
-  let center = UNUserNotificationCenter.current()
-  center.getPendingNotificationRequests { requests in
-    let ids = requests
-      .filter { req in
-        let kind = req.content.userInfo["kind"] as? String
-        return kind == "timeOut" || kind == "stillWaiting"
-      }
-      .map { $0.identifier }
-    if !ids.isEmpty {
-      center.removePendingNotificationRequests(withIdentifiers: ids)
-    }
-  }
-}
-
-func readWidgetState() -> WidgetPomodoroState {
-  guard
-    let defaults = UserDefaults(suiteName: appGroup),
-    let json = defaults.string(forKey: "widgetState"),
-    let data = json.data(using: .utf8),
-    let state = try? JSONDecoder().decode(WidgetPomodoroState.self, from: data)
-  else {
-    return .default
-  }
-  return state
-}
-
-func writeWidgetState(_ state: WidgetPomodoroState) {
-  guard
-    let defaults = UserDefaults(suiteName: appGroup),
-    let data = try? JSONEncoder().encode(state),
-    let json = String(data: data, encoding: .utf8)
-  else { return }
-  defaults.set(json, forKey: "widgetState")
-}
-
-// MARK: - App Intents
-
-struct StartFocusIntent: AppIntent {
-  static var title: LocalizedStringResource = "Start Focus"
-
-  func perform() async throws -> some IntentResult {
-    var state = readWidgetState()
-    state.phase = "focus"
-    state.phaseStartedAt = formatISODate(Date())
-    writeWidgetState(state)
-    UserDefaults(suiteName: appGroup)?.set("startFocus", forKey: "pendingAction")
-    // Cancel any repeating "Still waiting" notifications from a previous overtime
-    // session. The app may be suspended and unable to cancel them itself.
-    cancelPomodoroPendingNotifications()
-    WidgetCenter.shared.reloadAllTimelines()
-    return .result()
-  }
-}
-
-struct StopFocusIntent: AppIntent {
-  static var title: LocalizedStringResource = "Stop Focus"
-
-  func perform() async throws -> some IntentResult {
-    var state = readWidgetState()
-    state.phase = "ready"
-    state.phaseStartedAt = nil
-    writeWidgetState(state)
-    UserDefaults(suiteName: appGroup)?.set("stopFocus", forKey: "pendingAction")
-    cancelPomodoroPendingNotifications()
-    WidgetCenter.shared.reloadAllTimelines()
-    return .result()
-  }
-}
-
-struct FinishRestIntent: AppIntent {
-  static var title: LocalizedStringResource = "Finish Rest"
-
-  func perform() async throws -> some IntentResult {
-    var state = readWidgetState()
-    state.phase = "ready"
-    state.phaseStartedAt = nil
-    writeWidgetState(state)
-    UserDefaults(suiteName: appGroup)?.set("finishRest", forKey: "pendingAction")
-    cancelPomodoroPendingNotifications()
-    WidgetCenter.shared.reloadAllTimelines()
-    return .result()
-  }
-}
-
-struct StartRestIntent: AppIntent {
-  static var title: LocalizedStringResource = "Start Rest"
-
-  func perform() async throws -> some IntentResult {
-    var state = readWidgetState()
-    state.phase = "rest"
-    state.phaseStartedAt = formatISODate(Date())
-    writeWidgetState(state)
-    UserDefaults(suiteName: appGroup)?.set("startRest", forKey: "pendingAction")
-    cancelPomodoroPendingNotifications()
-    WidgetCenter.shared.reloadAllTimelines()
-    return .result()
-  }
-}
+// MARK: - Helpers
 
 private func phaseEndDate(for state: WidgetPomodoroState) -> Date? {
   guard
@@ -554,6 +420,46 @@ struct MediumWidgetView: View {
 
 // MARK: - Entry View + Widget
 
+// MARK: - Accessory Circular (Lock Screen)
+
+struct AccessoryCircularView: View {
+  let entry: PomodoroEntry
+
+  private var range: ClosedRange<Date>? {
+    guard
+      (entry.state.phase == "focus" || entry.state.phase == "rest"),
+      let startedAt = entry.state.phaseStartedAt,
+      let start = parseISODate(startedAt)
+    else { return nil }
+    let dur = entry.state.phase == "focus"
+      ? Double(entry.state.focusDurationMinutes * 60)
+      : Double(entry.state.restDurationMinutes * 60)
+    let end = start.addingTimeInterval(dur)
+    guard end > start else { return nil }
+    return start...end
+  }
+
+  var body: some View {
+    if let range = range, entry.date <= range.upperBound {
+      ProgressView(timerInterval: range, countsDown: true) {
+        PoringFrameView(phase: entry.state.phase, frameIndex: 0, scale: 1)
+      } currentValueLabel: {
+        Text(timerInterval: range, countsDown: true)
+          .monospacedDigit()
+          .font(.system(size: 10, weight: .semibold))
+      }
+      .progressViewStyle(.circular)
+      .containerBackground(for: .widget) { Color.clear }
+    } else {
+      ZStack {
+        AccessoryWidgetBackground()
+        PoringFrameView(phase: "ready", frameIndex: 0, scale: 1)
+      }
+      .containerBackground(for: .widget) { Color.clear }
+    }
+  }
+}
+
 struct PomodoroWidgetEntryView: View {
   @Environment(\.widgetFamily) var family
   let entry: PomodoroEntry
@@ -564,6 +470,8 @@ struct PomodoroWidgetEntryView: View {
       SmallWidgetView(entry: entry)
     case .systemMedium:
       MediumWidgetView(entry: entry)
+    case .accessoryCircular:
+      AccessoryCircularView(entry: entry)
     default:
       SmallWidgetView(entry: entry)
     }
@@ -579,6 +487,6 @@ struct PomodoroWidget: Widget {
     }
     .configurationDisplayName("RO Pomodoro")
     .description("Track your Pomodoro timer and control it from your home screen.")
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular])
   }
 }

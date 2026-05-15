@@ -12,6 +12,9 @@
       "icon": "./assets/expo.icon",
       "entitlements": {
         "com.apple.security.application-groups": ["group.com.roysung.roPomodoroNative"]
+      },
+      "infoPlist": {
+        "NSSupportsLiveActivities": true
       }
     },
     "android": {

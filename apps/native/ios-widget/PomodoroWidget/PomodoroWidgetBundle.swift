@@ -5,5 +5,6 @@ import WidgetKit
 struct PomodoroWidgetBundle: WidgetBundle {
   var body: some Widget {
     PomodoroWidget()
+    PomodoroLiveActivity()
   }
 }
